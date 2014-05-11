@@ -19,7 +19,7 @@ Installation
     The constructor has three arguments:
     1.  $api_key - This is the API key given to you by flickr.com. This 
         argument is required and you can get an API Key at:
-        http://www.flickr.com/services/api/key.gne
+        https://www.flickr.com/services/api/keys/
         
     2.  $secret - The "secret" is optional because is not required to 
         make unauthenticated calls, but is absolutely required for the 
