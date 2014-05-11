@@ -19,7 +19,7 @@ Installation
     The constructor has three arguments:
     1.  $api_key - This is the API key given to you by flickr.com. This 
         argument is required and you can get an API Key at:
-        http://www.flickr.com/services/api/key.gne
+        https://www.flickr.com/services/api/key.gne
         
     2.  $secret - The "secret" is optional because is not required to 
         make unauthenticated calls, but is absolutely required for the 
@@ -35,7 +35,7 @@ Installation
         
 3.  All of the API methods have been implemented in my class.  You can 
     see a full list and documentation here: 
-        http://www.flickr.com/services/api/
+        https://www.flickr.com/services/api/
     To call a method, remove the "flickr." part of the name and replace 
     any periods with underscores. For example, instead of 
     flickr.photos.search, you would call $f->photos_search() or instead 
@@ -59,7 +59,7 @@ available to the API.  This method is somewhat complex, but is far more secure a
 allows your users to feel a little safer authenticating to your application.  You'll
 no longer have to ask for their username and password.
 
-[Flickr Authentication API](http://www.flickr.com/services/api/auth.spec.html)
+[Flickr Authentication API](https://www.flickr.com/services/api/auth.spec.html)
     
 I know how complicated this API looks at first glance, so I've tried to
 make this as transparent to the coding process.  I'll go through the steps
@@ -174,7 +174,7 @@ picture and gets a "ticketid" that you can use to check on the status of your
 upload. Asynchronous is much faster, though the photoid won't be instantly
 available for you. You can read more about asynchronous uploading here:
 
-    http://www.flickr.com/services/api/upload.async.html
+    https://www.flickr.com/services/api/upload.async.html
         
 Both of the functions take the same arguments which are:
 
