@@ -10,7 +10,7 @@
  * this as there are many people who post multiple photos at once.
  *
  * Obviously, you'll want to replace the "<api key>" with one provided 
- * by Flickr: http://www.flickr.com/services/api/key.gne
+ * by Flickr: https://www.flickr.com/services/api/key.gne
  */
 
 require_once("phpFlickr.php");
@@ -20,10 +20,10 @@ $recent = $f->photos_getRecent();
 
 foreach ($recent['photo'] as $photo) {
     $owner = $f->people_getInfo($photo['owner']);
-    echo "<a href='http://www.flickr.com/photos/" . $photo['owner'] . "/" . $photo['id'] . "/'>";
+    echo "<a href='https://www.flickr.com/photos/" . $photo['owner'] . "/" . $photo['id'] . "/'>";
     echo $photo['title'];
     echo "</a> Owner: ";
-    echo "<a href='http://www.flickr.com/people/" . $photo['owner'] . "/'>";
+    echo "<a href='https://www.flickr.com/people/" . $photo['owner'] . "/'>";
     echo $owner['username'];
     echo "</a><br>";
 }
