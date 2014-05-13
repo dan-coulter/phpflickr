@@ -1,18 +1,21 @@
 <?php
-/* phpFlickr Class 3.1
+/* phpFlickr
  * Written by Dan Coulter (dan@dancoulter.com)
- * Project Home Page: http://phpflickr.com/
- * Released under GNU Lesser General Public License (http://www.gnu.org/copyleft/lgpl.html)
- * For more information about the class and upcoming tools and toys using it,
- * visit http://www.phpflickr.com/
- *
- *	 For installation instructions, open the README.txt file packaged with this
- *	 class. If you don't have a copy, you can see it at:
- *	 http://www.phpflickr.com/README.txt
- *
- *	 Please submit all problems or questions to the Help Forum on my Google Code project page:
- *		 http://code.google.com/p/phpflickr/issues/list
- *
+ * Project Home Page: http://github.com/dancoulter/phpflickr
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
  */ 
 if ( !class_exists('phpFlickr') ) {
 	if (session_id() == "") {
