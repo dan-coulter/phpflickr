@@ -95,7 +95,7 @@ if ( !class_exists('phpFlickr') ) {
 							`response` MEDIUMTEXT NOT NULL ,
 							`expiration` DATETIME NOT NULL ,
 							INDEX ( `request` )
-						) TYPE = MYISAM
+						)
 					");
 
 					$result = mysqli_query($db, "SELECT COUNT(*) FROM $table");
