@@ -1322,9 +1322,9 @@ if ( !class_exists('phpFlickr') ) {
 			return $this->parsed_response ? $this->parsed_response['photoset'] : false;
 		}
 
-		function photosets_getList ($user_id = NULL) {
+		function photosets_getList ($user_id = NULL, $page = NULL, $per_page = NULL, $primary_photo_extras) {
 			/* https://www.flickr.com/services/api/flickr.photosets.getList.html */
-			$this->request("flickr.photosets.getList", array("user_id" => $user_id));
+			$this->request("flickr.photosets.getList", array("user_id" => $user_id, 'page' => $page, 'per_page' => $per_page, 'primary_photo_extras' => $primary_photo_extras));
 			return $this->parsed_response ? $this->parsed_response['photosets'] : false;
 		}
 
