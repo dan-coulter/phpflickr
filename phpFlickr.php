@@ -82,27 +82,27 @@ if ( !class_exists('phpFlickr') ) {
 			if ($type == 'db') {
 				if ( preg_match('|mysql://([^:]*):([^@]*)@([^/]*)/(.*)|', $connection, $matches) ) {
 					//Array ( [0] => mysql://user:password@server/database [1] => user [2] => password [3] => server [4] => database )
-					$db = mysql_connect($matches[3], $matches[1], $matches[2]);
-					mysql_select_db($matches[4], $db);
+					$db = mysqli_connect($matches[3],  $matches[1],  $matches[2]);
+					mysqli_query($db, "USE $matches[4]");
 
 					/*
 					 * If high performance is crucial, you can easily comment
 					 * out this query once you've created your database table.
 					 */
-					mysql_query("
+					mysqli_query($db, "
 						CREATE TABLE IF NOT EXISTS `$table` (
 							`request` CHAR( 35 ) NOT NULL ,
 							`response` MEDIUMTEXT NOT NULL ,
 							`expiration` DATETIME NOT NULL ,
 							INDEX ( `request` )
-						) TYPE = MYISAM
-					", $db);
+						)
+					");
 
-					$result = mysql_query("SELECT COUNT(*) FROM $table", $db);
-					$result = mysql_fetch_row($result);
+					$result = mysqli_query($db, "SELECT COUNT(*) FROM $table");
+					$result = mysqli_fetch_row($result);
 					if ( $result[0] > $this->max_cache_rows ) {
-						mysql_query("DELETE FROM $table WHERE expiration < DATE_SUB(NOW(), INTERVAL $cache_expire second)", $db);
-						mysql_query('OPTIMIZE TABLE ' . $this->cache_table, $db);
+						mysqli_query($db, "DELETE FROM $table WHERE expiration < DATE_SUB(NOW(), INTERVAL $cache_expire second)");
+						mysqli_query($db, 'OPTIMIZE TABLE ' . $this->cache_table);
 					}
 					$this->cache = 'db';
 					$this->cache_db = $db;
@@ -141,9 +141,9 @@ if ( !class_exists('phpFlickr') ) {
 			$this->cache_key = $reqhash;
 			$this->cache_request = $request;
 			if ($this->cache == 'db') {
-				$result = mysql_query("SELECT response FROM " . $this->cache_table . " WHERE request = '" . $reqhash . "' AND DATE_SUB(NOW(), INTERVAL " . (int) $this->cache_expire . " SECOND) < expiration", $this->cache_db);
-				if ( mysql_num_rows($result) ) {
-					$result = mysql_fetch_assoc($result);
+				$result = mysqli_query($this->cache_db, "SELECT response FROM " . $this->cache_table . " WHERE request = '" . $reqhash . "' AND DATE_SUB(NOW(), INTERVAL " . (int) $this->cache_expire . " SECOND) < expiration");
+				if ( mysqli_num_rows($result) ) {
+					$result = mysqli_fetch_assoc($result);
 					return $result['response'];
 				} else {
 					return false;
@@ -174,14 +174,14 @@ if ( !class_exists('phpFlickr') ) {
 			$reqhash = md5(serialize($request));
 			if ($this->cache == 'db') {
 				//$this->cache_db->query("DELETE FROM $this->cache_table WHERE request = '$reqhash'");
-				$result = mysql_query("SELECT COUNT(*) FROM " . $this->cache_table . " WHERE request = '" . $reqhash . "'", $this->cache_db);
-				$result = mysql_fetch_row($result);
+				$result = mysqli_query($this->cache_db, "SELECT COUNT(*) FROM " . $this->cache_table . " WHERE request = '" . $reqhash . "'");
+				$result = mysqli_fetch_row($result);
 				if ( $result[0] ) {
 					$sql = "UPDATE " . $this->cache_table . " SET response = '" . str_replace("'", "''", $response) . "', expiration = '" . strftime("%Y-%m-%d %H:%M:%S") . "' WHERE request = '" . $reqhash . "'";
-					mysql_query($sql, $this->cache_db);
+					mysqli_query($this->cache_db, $sql);
 				} else {
 					$sql = "INSERT INTO " . $this->cache_table . " (request, response, expiration) VALUES ('$reqhash', '" . str_replace("'", "''", $response) . "', '" . strftime("%Y-%m-%d %H:%M:%S") . "')";
-					mysql_query($sql, $this->cache_db);
+					mysqli_query($this->cache_db, $sql);
 				}
 			} elseif ($this->cache == "fs") {
 				$file = $this->cache_dir . "/" . $reqhash . ".cache";
