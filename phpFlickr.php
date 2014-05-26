@@ -91,20 +91,20 @@ if ( !class_exists('phpFlickr') ) {
 					 */
 					mysqli_query($db, "
 						CREATE TABLE IF NOT EXISTS `$table` (
-                          `request` varchar(128) NOT NULL,
-                          `response` mediumtext NOT NULL,
-                          `expiration` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                          UNIQUE KEY `request` (`request`)
+							`request` varchar(128) NOT NULL,
+							`response` mediumtext NOT NULL,
+							`expiration` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+							UNIQUE KEY `request` (`request`)
 						)
 					");
 
 					$result = mysqli_query($db, "SELECT COUNT(*) FROM $table");
-					if($result) {
+					if( $result ) {
 						$result = mysqli_fetch_row($result);						
 					}
 
 					if ( $result && $result[0] > $this->max_cache_rows ) {
-						mysqli_query($db, "DELETE FROM $table WHERE expiration < DATE_SUB(NOW(), INTERVAL $cache_expire second)");
+						mysqli_query($db, "DELETE FROM $table WHERE CURRENT_TIMESTAMP > expiration");
 						mysqli_query($db, 'OPTIMIZE TABLE ' . $this->cache_table);
 					}
 					$this->cache = 'db';
@@ -145,8 +145,6 @@ if ( !class_exists('phpFlickr') ) {
 			$this->cache_key = $reqhash;
 			$this->cache_request = $request;
 			if ($this->cache == 'db') {
-			    $table = $this->cache_table;
-			    $sql = "SELECT response FROM $table WHERE request = '$reqhash' AND ";
 				$result = mysqli_query($this->cache_db, "SELECT response FROM " . $this->cache_table . " WHERE request = '" . $reqhash . "' AND CURRENT_TIMESTAMP < expiration");
 				if ( $result && mysqli_num_rows($result) ) {
 					$result = mysqli_fetch_assoc($result);
@@ -179,21 +177,17 @@ if ( !class_exists('phpFlickr') ) {
 			}
 			$reqhash = md5(serialize($request));
 			if ($this->cache == 'db') {
-
 				//$this->cache_db->query("DELETE FROM $this->cache_table WHERE request = '$reqhash'");
-				$table = $this->cache_table;
 				$response = urlencode($response);
-				$expire = $this->cache_expire;
-				
-				$sql = "INSERT INTO $table (request, response, expiration) 
-						VALUES ('$reqhash', '$response', TIMESTAMPADD(SECOND,$expire,CURRENT_TIMESTAMP))
-						ON DUPLICATE KEY UPDATE response='$response', 
-						expiration=TIMESTAMPADD(SECOND,$expire,CURRENT_TIMESTAMP) ";
+				$sql = 'INSERT INTO '.$this->cache_table.' (request, response, expiration) 
+						VALUES (\''.$reqhash'\', \''.$response.'\', TIMESTAMPADD(SECOND,$expire,CURRENT_TIMESTAMP))
+						ON DUPLICATE KEY UPDATE response=\''.$response.'\', 
+						expiration=TIMESTAMPADD(SECOND,'.$this->cache_expire.',CURRENT_TIMESTAMP) ';
 
 				$result = mysqli_query($this->cache_db, $sql);
-                if(!$result) {
-                    echo mysqli_error($this->cache_db);
-                }
+				if(!$result) {
+					echo mysqli_error($this->cache_db);
+				}
 					
 				return $result;
 			} elseif ($this->cache == "fs") {
@@ -233,7 +227,6 @@ if ( !class_exists('phpFlickr') ) {
 				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 				$response = curl_exec($curl);
 				curl_close($curl);
-				
 			} else {
 				// Use sockets.
 				foreach ( $data as $key => $value ) {
