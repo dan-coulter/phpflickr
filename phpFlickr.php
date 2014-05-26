@@ -98,12 +98,12 @@ if ( !class_exists('phpFlickr') ) {
 						)
 					");
 
-					$result = mysqli_query($db, "SELECT COUNT(*) FROM $table");
+					$result = mysqli_query($db, "SELECT COUNT(*) 'count' FROM $table");
 					if( $result ) {
-						$result = mysqli_fetch_row($result);						
+						$result = mysqli_fetch_assoc($result);						
 					}
-
-					if ( $result && $result[0] > $this->max_cache_rows ) {
+					
+					if ( $result && $result['count'] > $this->max_cache_rows ) {
 						mysqli_query($db, "DELETE FROM $table WHERE CURRENT_TIMESTAMP > expiration");
 						mysqli_query($db, 'OPTIMIZE TABLE ' . $this->cache_table);
 					}
@@ -180,7 +180,7 @@ if ( !class_exists('phpFlickr') ) {
 				//$this->cache_db->query("DELETE FROM $this->cache_table WHERE request = '$reqhash'");
 				$response = urlencode($response);
 				$sql = 'INSERT INTO '.$this->cache_table.' (request, response, expiration) 
-						VALUES (\''.$reqhash'\', \''.$response.'\', TIMESTAMPADD(SECOND,$expire,CURRENT_TIMESTAMP))
+						VALUES (\''.$reqhash.'\', \''.$response.'\', TIMESTAMPADD(SECOND,'.$this->cache_expire.',CURRENT_TIMESTAMP))
 						ON DUPLICATE KEY UPDATE response=\''.$response.'\', 
 						expiration=TIMESTAMPADD(SECOND,'.$this->cache_expire.',CURRENT_TIMESTAMP) ';
 
