@@ -218,11 +218,11 @@ if ( !class_exists('phpFlickr') ) {
 				curl_setopt($curl, CURLOPT_POST, true);
 				curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
 				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt ($curl, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
+				curl_setopt ($curl, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
 				$response = curl_exec($curl);
-        if($response === false){
-            die('CURL error: "' . curl_error($curl) . '"');
-        }
+				if($response === false){
+					die('CURL error: "' . curl_error($curl) . '"');
+				}
 				curl_close($curl);
 			} else {
 				// Use sockets.
