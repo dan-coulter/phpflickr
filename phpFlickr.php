@@ -1088,8 +1088,7 @@ if ( !class_exists('phpFlickr') ) {
 			 */
 
 			/* https://www.flickr.com/services/api/flickr.photos.search.html */
-			$this->request("flickr.photos.search", $args);
-			return $this->parsed_response ? $this->parsed_response['photos'] : false;
+			return $this->call('flickr.photos.search', $args);
 		}
 
 		function photos_setContentType ($photo_id, $content_type) {
