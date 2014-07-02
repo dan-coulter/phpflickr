@@ -209,7 +209,7 @@ if ( !class_exists('phpFlickr') ) {
 			}
 
 			if ( !preg_match("|https://(.*?)(/.*)|", $url, $matches) ) {
-				die('There was some problem figuring out your endpoint');
+				throw new Exception('There was some problem figuring out your endpoint');
 			}
 
 			if ( function_exists('curl_init') ) {
@@ -229,7 +229,7 @@ if ( !class_exists('phpFlickr') ) {
 
 				$fp = @pfsockopen($matches[1], 80);
 				if (!$fp) {
-					die('Could not connect to the web service');
+					throw new Exception('Could not connect to the web service');
 				}
 				fputs ($fp,'POST ' . $matches[2] . " HTTP/1.1\n");
 				fputs ($fp,'Host: ' . $matches[1] . "\n");
@@ -245,7 +245,7 @@ if ( !class_exists('phpFlickr') ) {
 				$chunked = false;
 				$http_status = trim(substr($response, 0, strpos($response, "\n")));
 				if ( $http_status != 'HTTP/1.1 200 OK' ) {
-					die('The web service endpoint returned a "' . $http_status . '" response');
+					throw new Exception('The web service endpoint returned a "' . $http_status . '" response');
 				}
 				if ( strpos($response, 'Transfer-Encoding: chunked') !== false ) {
 					$temp = trim(strstr($response, "\r\n\r\n"));
@@ -303,8 +303,9 @@ if ( !class_exists('phpFlickr') ) {
 			//$this->parsed_response = unserialize($this->response);
 			$this->parsed_response = $this->clean_text_nodes(unserialize($this->response));
 			if ($this->parsed_response['stat'] == 'fail') {
-				if ($this->die_on_error) die("The Flickr API returned the following error: #{$this->parsed_response['code']} - {$this->parsed_response['message']}");
-				else {
+				if ($this->die_on_error){
+					 throw new Exception("The Flickr API returned the following error: #{$this->parsed_response['code']} - {$this->parsed_response['message']}");
+				}else {
 					$this->error_code = $this->parsed_response['code'];
 					$this->error_msg = $this->parsed_response['message'];
 					$this->parsed_response = false;
@@ -424,7 +425,7 @@ if ( !class_exists('phpFlickr') ) {
 				foreach ($rsp as $line) {
 					if (preg_match('|<err code="([0-9]+)" msg="(.*)"|', $line, $match)) {
 						if ($this->die_on_error)
-							die("The Flickr API returned the following error: #{$match[1]} - {$match[2]}");
+							throw new Excetion("The Flickr API returned the following error: #{$match[1]} - {$match[2]}");
 						else {
 							$this->error_code = $match[1];
 							$this->error_msg = $match[2];
@@ -439,7 +440,7 @@ if ( !class_exists('phpFlickr') ) {
 				}
 
 			} else {
-				die("Sorry, your server must support CURL in order to upload files");
+				throw new Exception("Sorry, your server must support CURL in order to upload files");
 			}
 
 		}
@@ -486,7 +487,7 @@ if ( !class_exists('phpFlickr') ) {
 				foreach ($rsp as $line) {
 					if (preg_match('/<err code="([0-9]+)" msg="(.*)"/', $line, $match)) {
 						if ($this->die_on_error)
-							die("The Flickr API returned the following error: #{$match[1]} - {$match[2]}");
+							throw new Exception("The Flickr API returned the following error: #{$match[1]} - {$match[2]}");
 						else {
 							$this->error_code = $match[1];
 							$this->error_msg = $match[2];
@@ -500,7 +501,7 @@ if ( !class_exists('phpFlickr') ) {
 					}
 				}
 			} else {
-				die("Sorry, your server must support CURL in order to upload files");
+				throw new Exception("Sorry, your server must support CURL in order to upload files");
 			}
 		}
 
@@ -552,7 +553,7 @@ if ( !class_exists('phpFlickr') ) {
 				foreach ($rsp as $line) {
 					if (preg_match('|<err code="([0-9]+)" msg="(.*)"|', $line, $match)) {
 						if ($this->die_on_error)
-							die("The Flickr API returned the following error: #{$match[1]} - {$match[2]}");
+							throw new Exception("The Flickr API returned the following error: #{$match[1]} - {$match[2]}");
 						else {
 							$this->error_code = $match[1];
 							$this->error_msg = $match[2];
@@ -566,7 +567,7 @@ if ( !class_exists('phpFlickr') ) {
 					}
 				}
 			} else {
-				die("Sorry, your server must support CURL in order to upload files");
+				throw new Exception("Sorry, your server must support CURL in order to upload files");
 			}
 		}
 
