@@ -41,10 +41,11 @@ if ( !class_exists('phpFlickr') ) {
 		var $last_request = null;
 		var $die_on_error;
 		var $error_code;
-		Var $error_msg;
+		var $error_msg;
 		var $token;
 		var $php_version;
 		var $custom_post = null, $custom_cache_get = null, $custom_cache_set = null;
+		var $curl = true;
 
 		/*
 		 * When your database cache table hits this many rows, a cleanup
@@ -219,7 +220,7 @@ if ( !class_exists('phpFlickr') ) {
 				die('There was some problem figuring out your endpoint');
 			}
 
-			if ( function_exists('curl_init') ) {
+			if ( function_exists('curl_init') && $this->curl==true ) {
 				// Has curl. Use it!
 				$curl = curl_init($this->rest_endpoint);
 				curl_setopt($curl, CURLOPT_POST, true);
@@ -401,7 +402,7 @@ if ( !class_exists('phpFlickr') ) {
 		}
 
 		function sync_upload ($photo, $title = null, $description = null, $tags = null, $is_public = null, $is_friend = null, $is_family = null) {
-			if ( function_exists('curl_init') ) {
+			if ( function_exists('curl_init') && $this->curl==true ) {
 				// Has curl. Use it!
 
 				//Process arguments, including method and login data.
@@ -463,7 +464,7 @@ if ( !class_exists('phpFlickr') ) {
 		}
 
 		function async_upload ($photo, $title = null, $description = null, $tags = null, $is_public = null, $is_friend = null, $is_family = null) {
-			if ( function_exists('curl_init') ) {
+			if ( function_exists('curl_init') && $this->curl==true ) {
 				// Has curl. Use it!
 
 				//Process arguments, including method and login data.
@@ -524,7 +525,7 @@ if ( !class_exists('phpFlickr') ) {
 
 		// Interface for new replace API method.
 		function replace ($photo, $photo_id, $async = null) {
-			if ( function_exists('curl_init') ) {
+			if ( function_exists('curl_init') && $this->curl==true ) {
 				// Has curl. Use it!
 
 				//Process arguments, including method and login data.
