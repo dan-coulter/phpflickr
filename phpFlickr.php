@@ -57,6 +57,12 @@ if ( !class_exists('phpFlickr') ) {
 		 * of your table.
 		 */
 		var $max_cache_rows = 1000;
+		
+		var $proxy;
+		var $proxyServer;
+		var $proxyPort;
+		var $proxyUsername;
+		var $proxyPassword;
 
 		function phpFlickr ($api_key, $secret = NULL, $die_on_error = false) {
 			//The API Key must be set before any calls can be made.  You can
@@ -69,6 +75,7 @@ if ( !class_exists('phpFlickr') ) {
 			//Find the PHP version and store it for future reference
 			$this->php_version = explode("-", phpversion());
 			$this->php_version = explode(".", $this->php_version[0]);
+			$this->proxy = false;
 		}
 
 		function enableCache ($type, $connection, $cache_expire = 600, $table = 'flickr_cache') {
@@ -222,6 +229,11 @@ if ( !class_exists('phpFlickr') ) {
 			if ( function_exists('curl_init') ) {
 				// Has curl. Use it!
 				$curl = curl_init($this->rest_endpoint);
+				if ($this->proxy) {
+					curl_setopt($curl, CURLOPT_PROXY, $this->proxyServer);
+					curl_setopt($curl, CURLOPT_PROXYPORT, $this->proxyPort);
+					if ($this->proxyUsername!="") curl_setopt ($curl, CURLOPT_PROXYUSERPWD, $this->proxyUsername.':'.$this->proxyPassword);
+				}				
 				curl_setopt($curl, CURLOPT_POST, true);
 				curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
 				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -345,9 +357,13 @@ if ( !class_exists('phpFlickr') ) {
 			$this->token = $token;
 		}
 
-		function setProxy ($server, $port) {
+		function setProxy ($server="localhost", $port="3128", $username="", $password="") {
 			// Sets the proxy for all phpFlickr calls.
-			$this->req->setProxy($server, $port);
+			$this->proxy=true;
+			$this->proxyServer=$server;
+			$this->proxyPort=$port;
+			$this->proxyUsername=$username;
+			$this->proxyPassword=$password;
 		}
 
 		function getErrorCode () {
@@ -431,6 +447,11 @@ if ( !class_exists('phpFlickr') ) {
 
 
 				$curl = curl_init($this->upload_endpoint);
+				if ($this->proxy) {
+					curl_setopt($curl, CURLOPT_PROXY, $this->proxyServer);
+					curl_setopt($curl, CURLOPT_PROXYPORT, $this->proxyPort);
+					if ($this->proxyUsername!="") curl_setopt ($curl, CURLOPT_PROXYUSERPWD, $this->proxyUsername.':'.$this->proxyPassword);
+				}				
 				curl_setopt($curl, CURLOPT_POST, true);
 				curl_setopt($curl, CURLOPT_POSTFIELDS, $args);
 				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -493,6 +514,11 @@ if ( !class_exists('phpFlickr') ) {
 
 
 				$curl = curl_init($this->upload_endpoint);
+				if ($this->proxy) {
+					curl_setopt($curl, CURLOPT_PROXY, $this->proxyServer);
+					curl_setopt($curl, CURLOPT_PROXYPORT, $this->proxyPort);
+					if ($this->proxyUsername!="") curl_setopt ($curl, CURLOPT_PROXYUSERPWD, $this->proxyUsername.':'.$this->proxyPassword);
+				}				
 				curl_setopt($curl, CURLOPT_POST, true);
 				curl_setopt($curl, CURLOPT_POSTFIELDS, $args);
 				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -554,6 +580,11 @@ if ( !class_exists('phpFlickr') ) {
 
 
 				$curl = curl_init($this->replace_endpoint);
+				if ($this->proxy) {
+					curl_setopt($curl, CURLOPT_PROXY, $this->proxyServer);
+					curl_setopt($curl, CURLOPT_PROXYPORT, $this->proxyPort);
+					if ($this->proxyUsername!="") curl_setopt ($curl, CURLOPT_PROXYUSERPWD, $this->proxyUsername.':'.$this->proxyPassword);
+				}				
 				curl_setopt($curl, CURLOPT_POST, true);
 				curl_setopt($curl, CURLOPT_POSTFIELDS, $args);
 				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
