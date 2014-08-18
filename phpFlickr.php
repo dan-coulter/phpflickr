@@ -427,7 +427,7 @@ if ( !class_exists('phpFlickr') ) {
 				}
 
 				$photo = realpath($photo);
-				$args['photo'] = '@' . $photo;
+				$args['photo'] = new CurlFile($photo, mime_content_type($photo), $photo);
 
 
 				$curl = curl_init($this->upload_endpoint);
@@ -489,7 +489,7 @@ if ( !class_exists('phpFlickr') ) {
 				}
 
 				$photo = realpath($photo);
-				$args['photo'] = '@' . $photo;
+				$args['photo'] = new CurlFile($photo, mime_content_type($photo), $photo);
 
 
 				$curl = curl_init($this->upload_endpoint);
@@ -550,7 +550,7 @@ if ( !class_exists('phpFlickr') ) {
 				}
 
 				$photo = realpath($photo);
-				$args['photo'] = '@' . $photo;
+				$args['photo'] = new CurlFile($photo, mime_content_type($photo), $photo);
 
 
 				$curl = curl_init($this->replace_endpoint);
