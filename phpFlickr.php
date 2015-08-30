@@ -226,6 +226,9 @@ if ( !class_exists('phpFlickr') ) {
 				curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
 				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 				$response = curl_exec($curl);
+				if ($response === false) {
+					die(curl_error($curl));
+				}
 				curl_close($curl);
 			} else {
 				// Use sockets.
