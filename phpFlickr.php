@@ -71,6 +71,30 @@ if ( !class_exists('phpFlickr') ) {
 			$this->php_version = explode(".", $this->php_version[0]);
 		}
 
+                /*
+                 * Generic API call with cURL
+                 * @require http://curl.haxx.se/ca/cacert.pem
+                 */
+		private function callApi($endpoint, $data) {
+			$error = array();
+			$curl = curl_init($endpoint);
+			curl_setopt($curl, CURLOPT_POST, true);
+			curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($curl, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
+			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
+			$response = curl_exec($curl);
+			$error['number'] = curl_errno($curl);
+			$error['message'] = curl_error($curl);
+			$error['curl_getinfo'] = curl_getinfo($curl);
+			curl_close($curl);
+                        if ($error['number'] > 0 && $this->die_on_error) {
+                            die("cURL returned the following error: #{$error['number']} - {$error['message']}");
+                        }
+			return $response;
+		}
+		
 		function enableCache ($type, $connection, $cache_expire = 600, $table = 'flickr_cache') {
 			// Turns on caching.  $type must be either "db" (for database caching) or "fs" (for filesystem).
 			// When using db, $connection must be a PEAR::DB connection string. Example:
@@ -221,12 +245,7 @@ if ( !class_exists('phpFlickr') ) {
 
 			if ( function_exists('curl_init') ) {
 				// Has curl. Use it!
-				$curl = curl_init($this->rest_endpoint);
-				curl_setopt($curl, CURLOPT_POST, true);
-				curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-				$response = curl_exec($curl);
-				curl_close($curl);
+				$response = $this->callApi($this->rest_endpoint, $data);
 			} else {
 				// Use sockets.
 				foreach ( $data as $key => $value ) {
@@ -429,15 +448,8 @@ if ( !class_exists('phpFlickr') ) {
 				$photo = realpath($photo);
 				$args['photo'] = '@' . $photo;
 
-
-				$curl = curl_init($this->upload_endpoint);
-				curl_setopt($curl, CURLOPT_POST, true);
-				curl_setopt($curl, CURLOPT_POSTFIELDS, $args);
-				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-				$response = curl_exec($curl);
-				$this->response = $response;
-				curl_close($curl);
-
+				$response = $this->callApi($this->upload_endpoint, $args);
+				
 				$rsp = explode("\n", $response);
 				foreach ($rsp as $line) {
 					if (preg_match('|<err code="([0-9]+)" msg="(.*)"|', $line, $match)) {
@@ -491,15 +503,8 @@ if ( !class_exists('phpFlickr') ) {
 				$photo = realpath($photo);
 				$args['photo'] = '@' . $photo;
 
-
-				$curl = curl_init($this->upload_endpoint);
-				curl_setopt($curl, CURLOPT_POST, true);
-				curl_setopt($curl, CURLOPT_POSTFIELDS, $args);
-				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-				$response = curl_exec($curl);
-				$this->response = $response;
-				curl_close($curl);
-
+				$response = $this->callApi($this->upload_endpoint, $args);
+				
 				$rsp = explode("\n", $response);
 				foreach ($rsp as $line) {
 					if (preg_match('/<err code="([0-9]+)" msg="(.*)"/', $line, $match)) {
@@ -553,13 +558,7 @@ if ( !class_exists('phpFlickr') ) {
 				$args['photo'] = '@' . $photo;
 
 
-				$curl = curl_init($this->replace_endpoint);
-				curl_setopt($curl, CURLOPT_POST, true);
-				curl_setopt($curl, CURLOPT_POSTFIELDS, $args);
-				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-				$response = curl_exec($curl);
-				$this->response = $response;
-				curl_close($curl);
+				$this->response = $this->callApi($this->replace_endpoint, $args);
 
 				if ($async == 1)
 					$find = 'ticketid';
@@ -1819,4 +1818,3 @@ if ( !class_exists('phpFlickr_pager') ) {
 	}
 }
 
-?>
