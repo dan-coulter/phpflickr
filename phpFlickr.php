@@ -58,7 +58,7 @@ if ( !class_exists('phpFlickr') ) {
 		 */
 		var $max_cache_rows = 1000;
 
-		function phpFlickr ($api_key, $secret = NULL, $die_on_error = false) {
+		function __construct ($api_key, $secret = NULL, $die_on_error = false) {
 			//The API Key must be set before any calls can be made.  You can
 			//get your own at https://www.flickr.com/services/api/misc.api_keys.html
 			$this->api_key = $api_key;
@@ -1704,7 +1704,7 @@ if ( !class_exists('phpFlickr_pager') ) {
 		var $total = null, $page = 0, $pages = null, $photos, $_extra = null;
 
 
-		function phpFlickr_pager($phpFlickr, $method = null, $args = null, $per_page = 30) {
+		function __construct($phpFlickr, $method = null, $args = null, $per_page = 30) {
 			$this->per_page = $per_page;
 			$this->method = $method;
 			$this->args = $args;
