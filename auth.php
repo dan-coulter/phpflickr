@@ -16,23 +16,21 @@
     require_once($path_to_phpFlickr_class . "phpFlickr.php");
     unset($_SESSION['phpFlickr_auth_token']);
      
-	if ( isset($_SESSION['phpFlickr_auth_redirect']) && !empty($_SESSION['phpFlickr_auth_redirect']) ) {
-		$redirect = $_SESSION['phpFlickr_auth_redirect'];
-		unset($_SESSION['phpFlickr_auth_redirect']);
-	}
+if (isset($_SESSION['phpFlickr_auth_redirect']) && !empty($_SESSION['phpFlickr_auth_redirect'])) {
+    $redirect = $_SESSION['phpFlickr_auth_redirect'];
+    unset($_SESSION['phpFlickr_auth_redirect']);
+}
     
     $f = new phpFlickr($api_key, $api_secret);
  
-    if (empty($_GET['frob'])) {
-        $f->auth($permissions, false);
-    } else {
-        $f->auth_getToken($_GET['frob']);
-	}
+if (empty($_GET['frob'])) {
+    $f->auth($permissions, false);
+} else {
+    $f->auth_getToken($_GET['frob']);
+}
     
-    if (empty($redirect)) {
-		header("Location: " . $default_redirect);
-    } else {
-		header("Location: " . $redirect);
-    }
- 
-?>
+if (empty($redirect)) {
+    header("Location: " . $default_redirect);
+} else {
+    header("Location: " . $redirect);
+}

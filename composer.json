@@ -1,0 +1,24 @@
+{
+	"name": "samwilson/phpflickr",
+	"description": "A PHP wrapper for the Flickr API, including Oauth.",
+	"type": "library",
+	"license": "GPL-3.0+",
+	"autoload": {
+		"psr-4": {
+			"Samwilson\\PhpFlickr\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Samwilson\\PhpFlickr\\Tests\\": "tests/"
+		}
+	},
+	"require": {
+		"php": ">=5.6"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "4.8.24",
+		"mediawiki/mediawiki-codesniffer": "0.7.2",
+		"vlucas/phpdotenv": "^2.4"
+	}
+}

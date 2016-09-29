@@ -1,16 +1,18 @@
-[phpFlickr](https://github.com/dan-coulter/phpflickr)
-=====================================================
-by [Dan Coulter](http://twitter.com/danco)
+[phpFlickr](https://github.com/samwilson/phpflickr)
+===================================================
 
 A PHP wrapper for the Flickr API.
 
-Installation
-============
+## Installation
 
-1.  Copy the files from the installation package into a folder on your
-    server.  They need to be readable by your web server.  You can put 
-    them into an include folder defined in your php.ini file, if you 
-    like, though it's not required. 
+Install with [Composer](https://getcomposer.org/):
+
+    composer require samwilson/phpflickr
+
+## Usage
+
+
+
     
 2.  All you have to do now is include the file in your PHP scripts and 
     create an instance.  For example:
@@ -225,3 +227,10 @@ Other Notes:
 
     After that, all of your calls will be automatically made through your proxy server.
  
+## Kudos
+
+This is a fork of Dan Coulter's original [phpFlickr](https://github.com/dan-coulter/phpflickr)
+library, maintained by Sam Wilson. All the hard work was done by Dan!
+
+Thanks also is greatly due to the many other
+[contributors](https://github.com/samwilson/phpflickr/graphs/contributors).

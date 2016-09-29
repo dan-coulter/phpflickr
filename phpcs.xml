@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<ruleset>
+    <!--
+      About this file:
+      https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml
+    -->
+
+    <file>./</file>
+    <exclude-pattern>./vendor/*</exclude-pattern>
+    <exclude-pattern>./docs/*</exclude-pattern>
+    <exclude-pattern>./tests/config.php</exclude-pattern>
+
+    <rule ref="PSR2" />
+
+</ruleset>
