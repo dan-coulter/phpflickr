@@ -11,64 +11,67 @@ Install with [Composer](https://getcomposer.org/):
 
 ## Usage
 
+Once you've included Composer's autoloader, create a PhpFlickr object.
+For example:
 
+```php
+require_once 'vendor/autoload.php';
+$flickr = new \Samwilson\PhpFlickr\PhpFlickr($apiKey, $apiSecret);
+```
 
-    
-2.  All you have to do now is include the file in your PHP scripts and 
-    create an instance.  For example:
-    $f = new phpFlickr();
+The constructor takes three arguments:
 
-    The constructor has three arguments:
-    1.  $api_key - This is the API key given to you by flickr.com. This 
-        argument is required and you can get an API Key at:
-        https://www.flickr.com/services/api/keys/
-        
-    2.  $secret - The "secret" is optional because is not required to 
-        make unauthenticated calls, but is absolutely required for the 
-        new authentication API (see Authentication section below).  You 
-        will get one assigned alongside your api key.
+1. `$api_key` - This is the API key given to you by flickr.com. This 
+   argument is required and you can get an API Key at:
+   https://www.flickr.com/services/api/keys/
     
-    3.  $die_on_error - This takes a boolean value and determines 
-        whether the class will die (aka cease operation) if the API 
-        returns an error statement.  It defaults to false.  Every method 
-        will return false if the API returns an error.  You can access 
-        error messages using the getErrorCode() and getErrorMsg() 
-        methods.
-        
-3.  All of the API methods have been implemented in my class.  You can 
-    see a full list and documentation here: 
-        http://www.flickr.com/services/api/
-    To call a method, remove the "flickr." part of the name and replace 
-    any periods with underscores. For example, instead of 
-    flickr.photos.search, you would call $f->photos_search() or instead 
-    of flickr.photos.licenses.getInfo, you would call 
-    $f->photos_licenses_getInfo() (yes, it is case sensitive).
-    
-    All functions have their arguments implemented in the list order on 
-    their documentation page (a link to which is included with each 
-    method in the phpFlickr clasS). The only exceptions to this are 
-    photos_search(), photos_getWithoutGeodata() and 
-    photos_getWithoutGeodata() which have so many optional arguments
-    that it's easier for everyone if you just have to pass an 
-    associative array of arguments.  See the comment in the 
-    photos_search() definition in phpFlickr.php for more information.
-    
+2. `$secret` - The "secret" is optional because is not required to 
+   make unauthenticated calls, but is absolutely required for the 
+   new authentication API (see Authentication section below).  You 
+   will get one assigned alongside your api key.
 
-Authentication
-==============
-As of this release of the phpFlickr class there is only one authentication method
-available to the API.  This method is somewhat complex, but is far more secure and
+3. `$die_on_error` - This takes a boolean value and determines 
+   whether the class will die (aka cease operation) if the API 
+   returns an error statement.  It defaults to false.  Every method 
+   will return false if the API returns an error.  You can access 
+   error messages using the getErrorCode() and getErrorMsg() 
+   methods.
+
+All of the API methods have been implemented in phpFlickr.  You can 
+see a full list and documentation here: 
+    http://www.flickr.com/services/api/
+
+To call a method, remove the "flickr." part of the name and replace 
+any periods with underscores. For example, instead of 
+flickr.photos.search, you would call $f->photos_search() or instead 
+of flickr.photos.licenses.getInfo, you would call 
+$f->photos_licenses_getInfo() (yes, it is case sensitive).
+
+All functions have their arguments implemented in the list order on 
+their documentation page (a link to which is included with each 
+method in the phpFlickr clasS). The only exceptions to this are 
+photos_search(), photos_getWithoutGeodata() and 
+photos_getWithoutGeodata() which have so many optional arguments
+that it's easier for everyone if you just have to pass an 
+associative array of arguments.  See the comment in the 
+photos_search() definition in phpFlickr.php for more information.
+
+## Authentication
+
+There is only one authentication method available to the API.
+This method is somewhat complex, but is far more secure and
 allows your users to feel a little safer authenticating to your application.  You'll
 no longer have to ask for their username and password.
 
-[Flickr Authentication API](http://www.flickr.com/services/api/auth.spec.html)
-    
-I know how complicated this API looks at first glance, so I've tried to
-make this as transparent to the coding process.  I'll go through the steps
+Read more about the [Flickr Authentication API](http://www.flickr.com/services/api/auth.spec.html).
+
+We know how complicated this API looks at first glance, so we've tried to
+make this as transparent to the coding process.  we'll go through the steps
 you'll need to use this.  Both the auth.php and getToken.php file will
 need your API Key and Secret entered before you can use them.
-    
+
 To have end users authenticate their accounts:
+
 1.  setup a callback script.  I've included a callback script that 
     is pretty flexible.  You'll find it in the package entitled "auth.php".
 
@@ -113,10 +116,8 @@ To have end users authenticate their accounts:
         $f->setToken("<token string>");
     This token never expires, so you don't have to worry about having to
     login periodically.
-        
 
-Caching
-=======
+## Caching
 
 Caching can be very important to a project.  Just a few calls to the Flickr API
 can take long enough to bore your average web user (depending on the calls you
@@ -159,9 +160,8 @@ cache you're using (either "db" or "fs")
     
     Alternatively, you can specify a directory that is outside of the web server's
     document root.
-        
-Uploading
-=========
+
+## Uploading
 
 Uploading is pretty simple. Aside from being authenticated (see Authentication 
 section) the very minimum that you'll have to pass is a path to an image file on 
@@ -187,9 +187,8 @@ Both of the functions take the same arguments which are:
 > is_public: Set to 0 for no, 1 for yes.  
 > is_friend: Set to 0 for no, 1 for yes.  
 > is_family: Set to 0 for no, 1 for yes.
-        
-Replacing Photos
-================
+
+## Replacing Photos
 
 Flickr has released API support for uploading a replacement photo.  To use this
 new method, just use the "replace" function in phpFlickr.  You'll be required

@@ -83,7 +83,6 @@ class Pager
                 } else {
                     return false;
                 }
-
             }
         } else {
             $this->args['page'] = $page;

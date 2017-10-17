@@ -23,28 +23,28 @@ namespace Samwilson\PhpFlickr;
 class PhpFlickr
 {
     protected $api_key;
-	protected $secret;
-	protected $rest_endpoint = 'https://api.flickr.com/services/rest/';
-	protected $upload_endpoint = 'https://up.flickr.com/services/upload/';
-	protected $replace_endpoint = 'https://up.flickr.com/services/replace/';
-	protected $req;
-	protected $response;
-	protected $parsed_response;
-	protected $cache = false;
-	protected $cache_db = null;
-	protected $cache_table = null;
-	protected $cache_dir = null;
-	protected $cache_expire = null;
-	protected $cache_key = null;
-	protected $last_request = null;
-	protected $die_on_error;
-	protected $error_code;
-	protected $error_msg;
-	protected $token;
-	protected $php_version;
-	protected $custom_post = null;
-	protected $custom_cache_get = null;
-	protected $custom_cache_set = null;
+    protected $secret;
+    protected $rest_endpoint = 'https://api.flickr.com/services/rest/';
+    protected $upload_endpoint = 'https://up.flickr.com/services/upload/';
+    protected $replace_endpoint = 'https://up.flickr.com/services/replace/';
+    protected $req;
+    protected $response;
+    protected $parsed_response;
+    protected $cache = false;
+    protected $cache_db = null;
+    protected $cache_table = null;
+    protected $cache_dir = null;
+    protected $cache_expire = null;
+    protected $cache_key = null;
+    protected $last_request = null;
+    protected $die_on_error;
+    protected $error_code;
+    protected $error_msg;
+    protected $token;
+    protected $php_version;
+    protected $custom_post = null;
+    protected $custom_cache_get = null;
+    protected $custom_cache_set = null;
 
     /**
      * When your database cache table hits this many rows, a cleanup
@@ -57,7 +57,7 @@ class PhpFlickr
      * of your table.
      * @var integer
      */
-	protected $max_cache_rows = 1000;
+    protected $max_cache_rows = 1000;
 
     public function __construct($api_key, $secret = null, $die_on_error = false)
     {
@@ -280,13 +280,13 @@ class PhpFlickr
         return $response;
     }
 
-	/**
-	 * Send a POST request to the Flickr API.
-	 * @param $command
-	 * @param array $args
-	 * @param bool $nocache
-	 * @return bool|mixed|string
-	 */
+    /**
+     * Send a POST request to the Flickr API.
+     * @param $command
+     * @param array $args
+     * @param bool $nocache
+     * @return bool|mixed|string
+     */
     public function request($command, $args = array(), $nocache = false)
     {
         // Make sure the API method begins with 'flickr.'.
@@ -484,11 +484,9 @@ class PhpFlickr
                     return $match[1];
                 }
             }
-
         } else {
             throw new Exception("Sorry, your server must support CURL in order to upload files");
         }
-
     }
 
     function async_upload($photo, $title = null, $description = null, $tags = null, $is_public = null, $is_friend = null, $is_family = null)
@@ -1157,7 +1155,7 @@ class PhpFlickr
      * to 1.
      * @return bool
      */
-    function photosGetRecent( $extras = [], $per_page = null, $page = null)
+    function photosGetRecent($extras = [], $per_page = null, $page = null)
     {
         /* https://www.flickr.com/services/api/flickr.photos.getRecent.html */
         if (is_array($extras)) {
