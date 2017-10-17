@@ -1,7 +1,8 @@
 <?php
 /* phpFlickr
- * Written by Dan Coulter (dan@dancoulter.com)
- * Project Home Page: https://github.com/dan-coulter/phpflickr
+ * Written by Dan Coulter (dan@dancoulter.com).
+ * Forked by Sam Wilson, 2017.
+ * Project Home Page: https://github.com/samwilson/phpflickr
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

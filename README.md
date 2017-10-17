@@ -3,6 +3,9 @@
 
 A PHP wrapper for the Flickr API.
 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/samwilson/phpflickr/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/samwilson/phpflickr/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/samwilson/phpflickr/badges/build.png?b=master)](https://scrutinizer-ci.com/g/samwilson/phpflickr/build-status/master)
+
 ## Installation
 
 Install with [Composer](https://getcomposer.org/):
