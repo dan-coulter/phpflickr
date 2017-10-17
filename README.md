@@ -3,8 +3,10 @@
 
 A PHP wrapper for the Flickr API.
 
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/samwilson/phpflickr/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/samwilson/phpflickr/?branch=master)
+[![Packagist](https://img.shields.io/packagist/v/samwilson/phpflickr.svg?style=flat-square)]()
+
 [![Build Status](https://scrutinizer-ci.com/g/samwilson/phpflickr/badges/build.png?b=master)](https://scrutinizer-ci.com/g/samwilson/phpflickr/build-status/master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/samwilson/phpflickr/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/samwilson/phpflickr/?branch=master)
 
 ## Installation
 
