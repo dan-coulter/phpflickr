@@ -1,7 +1,9 @@
-[phpFlickr](https://github.com/samwilson/phpflickr)
-===================================================
+phpFlickr
+=========
 
 A PHP wrapper for the Flickr API.
+
+https://github.com/samwilson/phpflickr
 
 [![Packagist](https://img.shields.io/packagist/v/samwilson/phpflickr.svg?style=flat-square)]()
 

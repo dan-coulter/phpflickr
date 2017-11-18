@@ -22,10 +22,3 @@ if (isset($_GET['oauth_token'])) {
     $accessToken = $flickr->getAccessToken( $storage, $_GET['oauth_token'], $_GET['oauth_verifier'] );
     var_dump($accessToken);
 }
-// oauth_token=72157689713894975-04ef3ada05b5f5be&oauth_verifier=3f0e774133c93624
-
-//if () {
-//    
-//}
-
-//$flickrService->requestAccessToken($token, $verifier, $accessTokenSecret);
