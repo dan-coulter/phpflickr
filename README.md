@@ -63,19 +63,49 @@ photos_search() definition in phpFlickr.php for more information.
 
 ## Authentication
 
-There is only one authentication method available to the API.
-This method is somewhat complex, but is far more secure and
-allows your users to feel a little safer authenticating to your application.  You'll
-no longer have to ask for their username and password.
+There is only one user authentication method available to the API, and that is OAuth 1.0.
+You only need to use this if you're performing operations that require it,
+such as uploading or accessing private photos.
 
-Read more about the [Flickr Authentication API](http://www.flickr.com/services/api/auth.spec.html).
+This authentication method is somewhat complex,
+but is secure and allows your users to feel a little safer authenticating to your application.
+You don't have to ask for their username and password.
 
-We know how complicated this API looks at first glance, so we've tried to
-make this as transparent to the coding process.  we'll go through the steps
-you'll need to use this.  Both the auth.php and getToken.php file will
-need your API Key and Secret entered before you can use them.
+Read more about the [Flickr Authentication API](https://www.flickr.com/services/api/auth.oauth.html).
+
+We know how difficult this API looks at first glance,
+so we've tried to make it as transparent as possible for users of phpFlickr.
+We'll go through all of the steps you'll need to do to use this.
 
 To have end users authenticate their accounts:
+
+1. Create an object in which to temporarily store the authentication token.
+   This must be an implementation of TokenStorageInterface,
+   and will usually be of type `Session` (for browser-based workflows)
+   or `Memory` (for command-line workflows).
+
+   ```php
+   $storage = new Memory();
+   ```
+
+2. Send your user to a Flickr URL (by redirecting them, or just telling them to click a link),
+   where they'll confirm that they want your application to have the permission you specify
+   (which is either `read`, `write`, or `delete`).
+
+   ```php
+   $url = $flickr->getAuthUrl($storage, $perm, $callbackUrl);
+   ```
+
+3. Once the user has authorized your application, they'll
+   either be redirected back to a URL on your site (that you specified as the callback URL above)
+   or be given a nine-digit code that they'll need to copy and paste into your application.
+
+   1. For the browser-based workflow, your callback URL will now have
+      two new query-string parameters: `oauth_token` and `oauth_verifier`.
+   2. For CLI workflow, you'll need to strip anything other than digits from the string that the user gives you
+      (e.g. leading and trailing spaces, and the hyphens in the code).
+
+4. 
 
 1.  setup a callback script.  I've included a callback script that 
     is pretty flexible.  You'll find it in the package entitled "auth.php".

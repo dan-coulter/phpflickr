@@ -10,8 +10,22 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 $flickr = new \Samwilson\PhpFlickr\PhpFlickr("<api key>", "<secret>");
+$storage = new \OAuth\Common\Storage\Session();
 
-//change this to the permissions you will need
-$flickr->auth("read");
+if (!isset($_GET['oauth_token'])) {
+    $callbackHere = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+    $url = $flickr->getAuthUrl($storage, 'read', $callbackHere);
+    echo "<a href='$url'>$url</a>";
+}
 
-echo "Copy this token into your code: " . $_SESSION['phpFlickr_auth_token'];
+if (isset($_GET['oauth_token'])) {
+    $accessToken = $flickr->getAccessToken( $storage, $_GET['oauth_token'], $_GET['oauth_verifier'] );
+    var_dump($accessToken);
+}
+// oauth_token=72157689713894975-04ef3ada05b5f5be&oauth_verifier=3f0e774133c93624
+
+//if () {
+//    
+//}
+
+//$flickrService->requestAccessToken($token, $verifier, $accessTokenSecret);

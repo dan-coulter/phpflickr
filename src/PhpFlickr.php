@@ -21,6 +21,14 @@
 
 namespace Samwilson\PhpFlickr;
 
+use Exception;
+use OAuth\Common\Consumer\Credentials;
+use OAuth\Common\Http\Client\CurlClient;
+use OAuth\Common\Http\Client\StreamClient;
+use OAuth\Common\Storage\TokenStorageInterface;
+use OAuth\OAuth1\Service\Flickr;
+use OAuth\OAuth1\Signature\Signature;
+
 class PhpFlickr
 {
     protected $api_key;
@@ -46,6 +54,9 @@ class PhpFlickr
     protected $custom_post = null;
     protected $custom_cache_get = null;
     protected $custom_cache_set = null;
+
+    /** @var string The Flickr-API service to connect to; must be either 'flickr' or '23'. */
+    protected $service;
 
     /**
      * When your database cache table hits this many rows, a cleanup
@@ -652,12 +663,49 @@ class PhpFlickr
         }
     }
 
-    function auth_url($frob, $perms = 'read')
+    /**
+     * Get the initial authorization URL to which to redirect users.
+     *
+     * This method submits a request to Flickr, so only use it at the request of the user
+     * (so as to not slow things down or perform unexpected actions).
+     *
+     * @param TokenStorageInterface $storage The temporary storage for the request token.
+     * @param string $perm One of 'read', 'write', or 'delete'.
+     * @param string $callbackUrl Defaults to 'out-of-band', i.e. no callback required for a CLI 
+     * application.
+     * @return string
+     */
+    public function getAuthUrl(TokenStorageInterface $storage, $perm = 'read', $callbackUrl = 'oob')
     {
-        $sig = md5(sprintf('%sapi_key%sfrob%sperms%s', $this->secret, $this->api_key, $frob, $perms));
-        return sprintf('https://flickr.com/services/auth/?api_key=%s&perms=%s&frob=%s&api_sig=%s', $this->api_key, $perms, $frob, $sig);
+        $credentials = new Credentials($this->api_key, $this->secret, $callbackUrl);
+        $flickrService = new FlickrOauthService(
+            $credentials,
+            new CurlClient(),
+            $storage,
+            new Signature($credentials)
+        );
+        $requestToken = $flickrService->requestRequestToken();
+        $url = $flickrService->getAuthorizationUri([
+            'oauth_token' => $requestToken->getAccessToken(),
+            'perms' => $perm,
+        ]);
+        return $url;
     }
 
+    public function getAccessToken(TokenStorageInterface $storage, $token, $verifier)
+    {
+        $credentials = new Credentials($this->api_key, $this->secret, 'oob');
+        $flickrService = new FlickrOauthService(
+            $credentials,
+            new CurlClient(),
+            $storage,
+            new Signature($credentials)
+        );
+        $requestToken = $flickrService->requestRequestToken();
+        $accessToken = $flickrService->requestAccessToken($requestToken, $verifier, $token);
+        return $accessToken;
+    }
+    
     /*******************************
 
     To use the phpFlickr::call method, pass a string containing the API method you want
