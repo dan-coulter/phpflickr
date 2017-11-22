@@ -672,6 +672,18 @@ class PhpFlickr
     }
 
     /**
+     * @deprecated since 4.1.0; use PhpFlickr::getAuthUrl() instead.
+     * @param string $frob
+     * @param string $perms
+     * @return string
+     */
+    public function auth_url($frob, $perms = 'read')
+    {
+        $sig = md5(sprintf('%sapi_key%sfrob%sperms%s', $this->secret, $this->api_key, $frob, $perms));
+        return sprintf('https://flickr.com/services/auth/?api_key=%s&perms=%s&frob=%s&api_sig=%s', $this->api_key, $perms, $frob, $sig);
+    }
+
+    /**
      * @return Flickr
      */
     protected function getOauthService($callbackUrl, TokenStorageInterface $storage)
@@ -685,7 +697,7 @@ class PhpFlickr
         $this->oauthService = $factory->createService('Flickr', $credentials, $storage );
         return $this->oauthService;
     }
-    
+
     /**
      * Get the initial authorization URL to which to redirect users.
      *
