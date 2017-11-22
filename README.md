@@ -107,52 +107,24 @@ To have end users authenticate their accounts:
    2. For CLI workflow, you'll need to strip anything other than digits from the string that the user gives you
       (e.g. leading and trailing spaces, and the hyphens in the code).
 
-4. 
+4. You can now request the final 'access token':
 
-1.  setup a callback script.  I've included a callback script that 
-    is pretty flexible.  You'll find it in the package entitled "auth.php".
+   1. For the browser-based workflow:
+      ```php
+      $accessToken = $flickr->getAccessToken($storage, $_GET['oauth_verifier'], $_GET['oauth_token']);
+      ```
+   2. For the CLI workflow, it's much the same,
+      but because you've still got access to the request token
+      you can leave off the request token:
+      ```php
+      $verifier = '<9-digit code stripped of hyphens and spaces>';
+      $accessToken = $flickr->getAccessToken($storage, $verifier);
+      ```
 
-    You'll need to go to flickr and point your api key to this file as the 
-    callback script.  Once you've done this, on any page that you want to 
-    require the end user end user to authenticate their flickr account to 
-    your app, just call the phpFlickr::auth() function with whatever 
-    permission you need to use.
-
-    For example:
-        $f->auth("write");
-
-    The three permissions are "read", "write" and "delete".  The function
-    defaults to "read", if you leave it blank.  
-        
-    Calling this function will send the user's browser to Flickr's page to 
-    authenticate to your app.  Once they have logged in, it will bounce
-    them back to your callback script which will redirect back to the
-    original page that you called the auth() function from after setting
-    a session variable to save their authentication token.  If that session
-    variable exists, calling the auth() function will return the permissions
-    that the user granted your app on the Flickr page instead of redirecting
-    to an external page.
-    
-2.  To authenticate the app to your account to show your private pictures (for example)
-        
-    This method will allow you to have the app authenticate to one specific
-    account, no matter who views your website.  This is useful to display
-    private photos or photosets (among other things).
-    
-    *Note*: The method below is a little hard to understand, so I've setup a tool
-    to help you through this: http://www.phpflickr.com/tools/auth/.
-                    
-    First, you'll have to setup a callback script with Flickr.  Once you've
-    done that, edit line 12 of the included getToken.php file to reflect 
-    which permissions you'll need for the app.  Then browse to the page.
-    Once you've authorized the app with Flickr, it'll send you back to that
-    page which will give you a token which will look something like this:
-        1234-567890abcdef1234
-    Go to the file where you are creating an instance of phpFlickr (I suggest
-    an include file) and after you've created it set the token to use:
-        $f->setToken("<token string>");
-    This token never expires, so you don't have to worry about having to
-    login periodically.
+5. Now you can save the access token
+   (using the `$accessToken->getAccessToken()` and `$accessToken->getAccessTokenSecret()` methods)
+   and use this for future requests.
+   The access token doesn't expire.
 
 ## Caching
 
@@ -162,7 +134,7 @@ are making).  I've built in caching that will access either a database or files
 in your filesystem.  To enable caching, use the phpFlickr::enableCache() function.
 This function requires at least two arguments. The first will be the type of
 cache you're using (either "db" or "fs")
-    
+
 1.  If you're using database caching, you'll need to supply a PEAR::DB style connection
     string. For example: 
 

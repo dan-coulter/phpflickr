@@ -2,4 +2,5 @@
 /.idea/
 /composer.lock
 /examples/.env
+/examples/config.php
 

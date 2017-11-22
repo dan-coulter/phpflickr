@@ -8,16 +8,20 @@
  * Most of the processing time in this file comes from the 100 calls to
  * flickr.people.getInfo.  Enabling caching will help a whole lot with
  * this as there are many people who post multiple photos at once.
+ *
+ * @file
  */
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-// Load the API key from the .env file.
-$dotenv = new \Dotenv\Dotenv(__DIR__);
-$dotenv->load();
-
-// Create the PhpFlickr object with your API key.
-$phpFlickr = new \Samwilson\PhpFlickr\PhpFlickr(getenv('API_KEY'));
+$configFile = __DIR__ . '/config.php';
+require_once $configFile;
+if (empty($apiKey) || empty($apiSecret)) {
+    echo 'Please set $apiKey and $apiSecret in '.$configFile;
+    exit(1);
+}
+$phpFlickr = new \Samwilson\PhpFlickr\PhpFlickr($apiKey, $apiSecret);
+$phpFlickr->setAccessToken($accessToken, $accessTokenSecret);
 
 // Make a request.
 $recent = $phpFlickr->photosGetRecent([], 10);

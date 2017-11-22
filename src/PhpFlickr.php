@@ -28,6 +28,8 @@ use OAuth\Common\Http\Client\StreamClient;
 use OAuth\Common\Storage\TokenStorageInterface;
 use OAuth\OAuth1\Service\Flickr;
 use OAuth\OAuth1\Signature\Signature;
+use OAuth\OAuth2\Token\TokenInterface;
+use OAuth\ServiceFactory;
 
 class PhpFlickr
 {
@@ -57,6 +59,12 @@ class PhpFlickr
 
     /** @var string The Flickr-API service to connect to; must be either 'flickr' or '23'. */
     protected $service;
+
+    /** @var Flickr */
+    protected $oauthService;
+
+    /** @var TokenInterface */
+    protected $oauthRequestToken;
 
     /**
      * When your database cache table hits this many rows, a cleanup
@@ -664,6 +672,21 @@ class PhpFlickr
     }
 
     /**
+     * @return Flickr
+     */
+    protected function getOauthService($callbackUrl, TokenStorageInterface $storage)
+    {
+        if ($this->oauthService instanceof Flickr) {
+            return $this->oauthService;
+        }
+        $credentials = new Credentials($this->api_key, $this->secret, $callbackUrl);
+        $factory = new ServiceFactory();
+        /** @var Flickr $flickrService */
+        $this->oauthService = $factory->createService('Flickr', $credentials, $storage );
+        return $this->oauthService;
+    }
+    
+    /**
      * Get the initial authorization URL to which to redirect users.
      *
      * This method submits a request to Flickr, so only use it at the request of the user
@@ -671,41 +694,49 @@ class PhpFlickr
      *
      * @param TokenStorageInterface $storage The temporary storage for the request token.
      * @param string $perm One of 'read', 'write', or 'delete'.
-     * @param string $callbackUrl Defaults to 'out-of-band', i.e. no callback required for a CLI 
-     * application.
+     * @param string $callbackUrl Defaults to 'out-of-band' for when no callback is required, for
+     * example for a CLI application.
      * @return string
      */
     public function getAuthUrl(TokenStorageInterface $storage, $perm = 'read', $callbackUrl = 'oob')
     {
-        $credentials = new Credentials($this->api_key, $this->secret, $callbackUrl);
-        $flickrService = new FlickrOauthService(
-            $credentials,
-            new CurlClient(),
-            $storage,
-            new Signature($credentials)
-        );
-        $requestToken = $flickrService->requestRequestToken();
-        $url = $flickrService->getAuthorizationUri([
-            'oauth_token' => $requestToken->getAccessToken(),
+        $service = $this->getOauthService($callbackUrl, $storage);
+        $this->oauthRequestToken = $service->requestRequestToken();
+        $url = $service->getAuthorizationUri([
+            'oauth_token' => $this->oauthRequestToken->getAccessToken(),
             'perms' => $perm,
         ]);
         return $url;
     }
 
-    public function getAccessToken(TokenStorageInterface $storage, $token, $verifier)
+    /**
+     * Get an access token for the current user, that you can store in order to authenticate as 
+     * for this user in the future.
+     *
+     * @param TokenStorageInterface $storage The storage to get the request token from.
+     * @param string $verifier The verification code.
+     * @param string $requestToken The request token. Can be left out if this is being called on
+     * the same object that started the authentication (i.e. it already has access to the request
+     * token).
+     * @return \OAuth\Common\Token\TokenInterface|\OAuth\OAuth1\Token\TokenInterface|string
+     */
+    public function getAccessToken(TokenStorageInterface $storage, $verifier, $requestToken = null)
     {
-        $credentials = new Credentials($this->api_key, $this->secret, 'oob');
-        $flickrService = new FlickrOauthService(
-            $credentials,
-            new CurlClient(),
-            $storage,
-            new Signature($credentials)
-        );
-        $requestToken = $flickrService->requestRequestToken();
-        $accessToken = $flickrService->requestAccessToken($requestToken, $verifier, $token);
+        $service = $this->getOauthService('oob', $storage);
+        /** @var \OAuth\OAuth1\Token\TokenInterface $token */
+        $token = $storage->retrieveAccessToken('Flickr');
+
+        // If no request token is provided, try to get it from this object.
+        if (is_null($requestToken) && $this->oauthRequestToken instanceof TokenInterface) {
+            $requestToken = $this->oauthRequestToken->getAccessToken();
+        }
+
+        $secret = $token->getAccessTokenSecret();
+        $accessToken = $service->requestAccessToken($requestToken, $verifier, $secret);
+        $storage->storeAccessToken('Flickr', $accessToken);
         return $accessToken;
     }
-    
+
     /*******************************
 
     To use the phpFlickr::call method, pass a string containing the API method you want
