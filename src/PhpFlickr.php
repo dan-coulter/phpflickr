@@ -23,11 +23,9 @@ namespace Samwilson\PhpFlickr;
 
 use Exception;
 use OAuth\Common\Consumer\Credentials;
-use OAuth\Common\Http\Client\CurlClient;
-use OAuth\Common\Http\Client\StreamClient;
 use OAuth\Common\Storage\TokenStorageInterface;
 use OAuth\OAuth1\Service\Flickr;
-use OAuth\OAuth1\Signature\Signature;
+use OAuth\OAuth1\Token\StdOAuth1Token;
 use OAuth\OAuth2\Token\TokenInterface;
 use OAuth\ServiceFactory;
 
@@ -65,6 +63,9 @@ class PhpFlickr
 
     /** @var TokenInterface */
     protected $oauthRequestToken;
+
+    /** @var TokenStorageInterface */
+    protected $oauthTokenStorage;
 
     /**
      * When your database cache table hits this many rows, a cleanup
@@ -236,76 +237,13 @@ class PhpFlickr
         $this->custom_post = $function;
     }
 
-    function post($data, $type = null)
-    {
-        if (is_null($type)) {
-            $url = $this->rest_endpoint;
-        }
-
-        if (!is_null($this->custom_post)) {
-            return call_user_func($this->custom_post, $url, $data);
-        }
-
-        if (!preg_match("|https://(.*?)(/.*)|", $url, $matches)) {
-            throw new Exception('There was some problem figuring out your endpoint');
-        }
-
-        if (function_exists('curl_init')) {
-            // Has curl. Use it!
-            $curl = curl_init($this->rest_endpoint);
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            $response = curl_exec($curl);
-            curl_close($curl);
-        } else {
-            // Use sockets.
-            foreach ($data as $key => $value) {
-                $data[$key] = $key . '=' . urlencode($value);
-            }
-            $data = implode('&', $data);
-
-            $fp = @pfsockopen('ssl://'.$matches[1], 443);
-            if (!$fp) {
-                throw new Exception('Could not connect to the web service');
-            }
-            fputs($fp, 'POST ' . $matches[2] . " HTTP/1.1\n");
-            fputs($fp, 'Host: ' . $matches[1] . "\n");
-            fputs($fp, "Content-type: application/x-www-form-urlencoded\n");
-            fputs($fp, "Content-length: ".strlen($data)."\n");
-            fputs($fp, "Connection: close\r\n\r\n");
-            fputs($fp, $data . "\n\n");
-            $response = "";
-            while (!feof($fp)) {
-                $response .= fgets($fp, 1024);
-            }
-            fclose($fp);
-            $chunked = false;
-            $http_status = trim(substr($response, 0, strpos($response, "\n")));
-            if ($http_status != 'HTTP/1.1 200 OK') {
-                throw new Exception('The web service endpoint returned a "' . $http_status . '" response');
-            }
-            if (strpos($response, 'Transfer-Encoding: chunked') !== false) {
-                $temp = trim(strstr($response, "\r\n\r\n"));
-                $response = '';
-                $length = trim(substr($temp, 0, strpos($temp, "\r")));
-                while (trim($temp) != "0" && ($length = trim(substr($temp, 0, strpos($temp, "\r")))) != "0") {
-                    $response .= trim(substr($temp, strlen($length)+2, hexdec($length)));
-                    $temp = trim(substr($temp, strlen($length) + 2 + hexdec($length)));
-                }
-            } elseif (strpos($response, 'HTTP/1.1 200 OK') !== false) {
-                $response = trim(strstr($response, "\r\n\r\n"));
-            }
-        }
-        return $response;
-    }
-
     /**
      * Send a POST request to the Flickr API.
-     * @param $command
-     * @param array $args
-     * @param bool $nocache
-     * @return bool|mixed|string
+     * @param string $command The API endpoint to call.
+     * @param string[] $args The API request arguments.
+     * @param bool $nocache Whether to cache the response or not.
+     * @return bool|string[]
+     * @throws FlickrException If the request fails.
      */
     public function request($command, $args = array(), $nocache = false)
     {
@@ -314,41 +252,18 @@ class PhpFlickr
             $command = "flickr." . $command;
         }
 
-        //Process arguments, including method and login data.
-        $args = array_merge(array("method" => $command, "format" => "json", "nojsoncallback" => "1", "api_key" => $this->api_key), $args);
-        if (!empty($this->token)) {
-            $args = array_merge($args, array("auth_token" => $this->token));
-        } elseif (!empty($_SESSION['phpFlickr_auth_token'])) {
-            $args = array_merge($args, array("auth_token" => $_SESSION['phpFlickr_auth_token']));
-        }
-        ksort($args);
-        $auth_sig = "";
-        $this->last_request = $args;
-        $this->response = $this->getCached($args);
+        // See if there's a cached 
+        $cacheKey = array_merge([$command], $args);
+        $this->response = $this->getCached($cacheKey);
         if (!($this->response) || $nocache) {
-            foreach ($args as $key => $data) {
-                if (is_null($data)) {
-                    unset($args[$key]);
-                    continue;
-                }
-                $auth_sig .= $key . $data;
-            }
-            if (!empty($this->secret)) {
-                $api_sig = md5($this->secret . $auth_sig);
-                $args['api_sig'] = $api_sig;
-            }
-            $this->response = $this->post($args);
-            $this->cache($args, $this->response);
+            $args = array_filter($args);
+            $oauthService = $this->getOauthService();
+            $this->response = $oauthService->requestJson($command, 'POST', $args);
+            $this->cache($cacheKey, $this->response);
         }
 
-
-        /*
-         * Uncomment this line (and comment out the next one) if you're doing large queries
-         * and you're concerned about time.  This will, however, change the structure of
-         * the result, so be sure that you look at the results.
-         */
-        $this->parsed_response = json_decode($this->response, true);
-/* 			$this->parsed_response = $this->clean_text_nodes(json_decode($this->response, TRUE)); */
+        $jsonResponse = json_decode($this->response, true);
+        $this->parsed_response = $this->clean_text_nodes($jsonResponse);
         if ($this->parsed_response['stat'] === 'fail') {
             if ($this->die_on_error) {
                  throw new FlickrException(
@@ -684,15 +599,18 @@ class PhpFlickr
     }
 
     /**
+     * @param string $callbackUrl The URL to return to when authenticating with Flickr. Only 
+     * required if you're going to be retrieving an access token.
      * @return Flickr
      */
-    protected function getOauthService($callbackUrl, TokenStorageInterface $storage)
+    protected function getOauthService($callbackUrl = 'oob')
     {
         if ($this->oauthService instanceof Flickr) {
             return $this->oauthService;
         }
         $credentials = new Credentials($this->api_key, $this->secret, $callbackUrl);
         $factory = new ServiceFactory();
+        $storage = $this->getOauthTokenStorage();
         /** @var Flickr $flickrService */
         $this->oauthService = $factory->createService('Flickr', $credentials, $storage );
         return $this->oauthService;
@@ -704,15 +622,14 @@ class PhpFlickr
      * This method submits a request to Flickr, so only use it at the request of the user
      * (so as to not slow things down or perform unexpected actions).
      *
-     * @param TokenStorageInterface $storage The temporary storage for the request token.
      * @param string $perm One of 'read', 'write', or 'delete'.
      * @param string $callbackUrl Defaults to 'out-of-band' for when no callback is required, for
      * example for a CLI application.
      * @return string
      */
-    public function getAuthUrl(TokenStorageInterface $storage, $perm = 'read', $callbackUrl = 'oob')
+    public function getAuthUrl($perm = 'read', $callbackUrl = 'oob')
     {
-        $service = $this->getOauthService($callbackUrl, $storage);
+        $service = $this->getOauthService($callbackUrl);
         $this->oauthRequestToken = $service->requestRequestToken();
         $url = $service->getAuthorizationUri([
             'oauth_token' => $this->oauthRequestToken->getAccessToken(),
@@ -725,16 +642,16 @@ class PhpFlickr
      * Get an access token for the current user, that you can store in order to authenticate as 
      * for this user in the future.
      *
-     * @param TokenStorageInterface $storage The storage to get the request token from.
      * @param string $verifier The verification code.
      * @param string $requestToken The request token. Can be left out if this is being called on
      * the same object that started the authentication (i.e. it already has access to the request
      * token).
      * @return \OAuth\Common\Token\TokenInterface|\OAuth\OAuth1\Token\TokenInterface|string
      */
-    public function getAccessToken(TokenStorageInterface $storage, $verifier, $requestToken = null)
+    public function retrieveAccessToken($verifier, $requestToken = null)
     {
-        $service = $this->getOauthService('oob', $storage);
+        $service = $this->getOauthService('oob');
+        $storage = $this->getOauthTokenStorage();
         /** @var \OAuth\OAuth1\Token\TokenInterface $token */
         $token = $storage->retrieveAccessToken('Flickr');
 
@@ -747,6 +664,25 @@ class PhpFlickr
         $accessToken = $service->requestAccessToken($requestToken, $verifier, $secret);
         $storage->storeAccessToken('Flickr', $accessToken);
         return $accessToken;
+    }
+
+    /**
+     * @param TokenStorageInterface $tokenStorage The storage object to use.
+     */
+    public function setOauthStorage(TokenStorageInterface $tokenStorage)
+    {
+        $this->oauthTokenStorage = $tokenStorage;
+    }
+
+    /**
+     * @return TokenStorageInterface
+     * @throws FlickrException If the token storage has not been set yet.
+     */
+    public function getOauthTokenStorage() {
+        if (!$this->oauthTokenStorage instanceof TokenStorageInterface) {
+            throw new FlickrException('Please call PhpFlickr::setOauthTokenStorage() before this');
+        }
+        return $this->oauthTokenStorage;
     }
 
     /*******************************

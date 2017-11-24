@@ -5,7 +5,7 @@ A PHP wrapper for the Flickr API.
 
 https://github.com/samwilson/phpflickr
 
-[![Packagist](https://img.shields.io/packagist/v/samwilson/phpflickr.svg?style=flat-square)]()
+[![Packagist](https://img.shields.io/packagist/v/samwilson/phpflickr.svg?style=flat-square)](https://packagist.org/packages/samwilson/phpflickr)
 
 [![Build Status](https://scrutinizer-ci.com/g/samwilson/phpflickr/badges/build.png?b=master)](https://scrutinizer-ci.com/g/samwilson/phpflickr/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/samwilson/phpflickr/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/samwilson/phpflickr/?branch=master)
@@ -28,14 +28,12 @@ $flickr = new \Samwilson\PhpFlickr\PhpFlickr($apiKey, $apiSecret);
 
 The constructor takes three arguments:
 
-1. `$api_key` - This is the API key given to you by flickr.com. This 
-   argument is required and you can get an API Key at:
-   https://www.flickr.com/services/api/keys/
-    
-2. `$secret` - The "secret" is optional because is not required to 
-   make unauthenticated calls, but is absolutely required for the 
-   new authentication API (see Authentication section below).  You 
-   will get one assigned alongside your api key.
+1. `$api_key` — This is the API key given to you by Flickr
+   when you [register your app](https://www.flickr.com/services/api/keys/).
+
+2. `$secret` — The "secret" is optional because it is only required to 
+   make authenticated requests ([see below](#making-authenticated-requests)).
+   It is given to you along with your API key.
 
 3. `$die_on_error` - This takes a boolean value and determines 
    whether the class will die (aka cease operation) if the API 
@@ -73,7 +71,7 @@ This authentication method is somewhat complex,
 but is secure and allows your users to feel a little safer authenticating to your application.
 You don't have to ask for their username and password.
 
-Read more about the [Flickr Authentication API](https://www.flickr.com/services/api/auth.oauth.html).
+👉 *Read more about the [Flickr Authentication API](https://www.flickr.com/services/api/auth.oauth.html).*
 
 We know how difficult this API looks at first glance,
 so we've tried to make it as transparent as possible for users of phpFlickr.
@@ -81,13 +79,15 @@ We'll go through all of the steps you'll need to do to use this.
 
 To have end users authenticate their accounts:
 
-1. Create an object in which to temporarily store the authentication token.
+1. Create an object in which to temporarily store the authentication token,
+   and give it to PhpFlickr.
    This must be an implementation of TokenStorageInterface,
    and will usually be of type `Session` (for browser-based workflows)
    or `Memory` (for command-line workflows).
 
    ```php
-   $storage = new Memory();
+   $storage = new \OAuth\Common\Storage\Memory();
+   $flickr->setOauthStorage($storage);
    ```
 
 2. Send your user to a Flickr URL (by redirecting them, or just telling them to click a link),
@@ -95,7 +95,7 @@ To have end users authenticate their accounts:
    (which is either `read`, `write`, or `delete`).
 
    ```php
-   $url = $flickr->getAuthUrl($storage, $perm, $callbackUrl);
+   $url = $flickr->getAuthUrl($perm, $callbackUrl);
    ```
 
 3. Once the user has authorized your application, they'll
@@ -111,20 +111,50 @@ To have end users authenticate their accounts:
 
    1. For the browser-based workflow:
       ```php
-      $accessToken = $flickr->getAccessToken($storage, $_GET['oauth_verifier'], $_GET['oauth_token']);
+      $accessToken = $flickr->retrieveAccessToken($_GET['oauth_verifier'], $_GET['oauth_token']);
       ```
    2. For the CLI workflow, it's much the same,
       but because you've still got access to the request token
       you can leave off the request token:
       ```php
       $verifier = '<9-digit code stripped of hyphens and spaces>';
-      $accessToken = $flickr->getAccessToken($storage, $verifier);
+      $accessToken = $flickr->retrieveAccessToken($verifier);
       ```
 
 5. Now you can save the access token
    (using the `$accessToken->getAccessToken()` and `$accessToken->getAccessTokenSecret()` methods)
    and use this for future requests.
    The access token doesn't expire.
+
+## Making authenticated requests
+
+Once you have an access token (see above),
+you can store it somewhere secure and use it to make authenticated requests at a later time.
+To do this, first create a storage object
+(again, as for the initial authentication process, you can choose between different storage types,
+but for many situations the in-memory storage is sufficient),
+and then store your access token in that object:
+
+```php
+// Create storage.
+$storage = new \OAuth\Common\Storage\Memory();
+// Create the access token from the strings you acquired before.
+$token = new \OAuth\OAuth1\Token\StdOAuth1Token();
+$token->setAccessToken($accessToken);
+$token->setAccessTokenSecret($accessTokenSecret);
+// Add the token to the storage.
+$storage->storeAccessToken('Flickr', $token);
+```
+
+Now, you can pass the storage into PhpFlickr, and start making requests:
+
+```php
+$flickr->setOauthStorage($storage);
+$recent = $phpFlickr->photos_getContactsPhotos();
+```
+
+See the [Usage section](#Usage) above for more details on the request methods,
+and the `examples/recent_photos.php` file for a working example.
 
 ## Caching
 

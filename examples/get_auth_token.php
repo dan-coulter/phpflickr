@@ -25,15 +25,16 @@ if (isset($_SERVER['SERVER_NAME'])) {
      * The web-browser workflow.
      */
     $storage = new \OAuth\Common\Storage\Session();
+    $flickr->setOauthStorage($storage);
 
     if (!isset($_GET['oauth_token'])) {
         $callbackHere = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-        $url = $flickr->getAuthUrl($storage, 'read', $callbackHere);
+        $url = $flickr->getAuthUrl('read', $callbackHere);
         echo "<a href='$url'>$url</a>";
     }
 
     if (isset($_GET['oauth_token'])) {
-        $accessToken = $flickr->getAccessToken($storage, $_GET['oauth_verifier'], $_GET['oauth_token']);
+        $accessToken = $flickr->retrieveAccessToken($_GET['oauth_verifier'], $_GET['oauth_token']);
     }
 
 } else {
@@ -42,11 +43,13 @@ if (isset($_SERVER['SERVER_NAME'])) {
      * The CLI workflow.
      */
     $storage = new \OAuth\Common\Storage\Memory();
-    $url = $flickr->getAuthUrl($storage, 'read');
-    echo "Go to $url\n";
+    $flickr->setOauthStorage($storage);
+
+    $url = $flickr->getAuthUrl('read');
+    echo "Go to $url\nEnter access code: ";
     $code = fgets(STDIN);
     $verifier = preg_replace('/[^0-9]/', '', $code);
-    $accessToken = $flickr->getAccessToken($storage, $verifier);
+    $accessToken = $flickr->retrieveAccessToken($verifier);
 }
 
 if (isset($accessToken) && $accessToken instanceof \OAuth\Common\Token\TokenInterface) {
