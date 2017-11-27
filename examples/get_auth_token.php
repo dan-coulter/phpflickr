@@ -1,17 +1,62 @@
 <?php
 /**
- * If you need your app to always login with the same user (to see your private
- * photos or photosets, for example), you can use this file to login and get a
- * token assigned so that you can hard code the token to be used.  To use this
- * use the phpFlickr::setToken() function whenever you create an instance of
- * the class.
+ * This file demonstrates the authentication workflows for both browser and CLI.
+ *
+ * It is an example only, and you should understand what it's doing and adapt it for your uses.
+ * However, it is a fully working example, and so can also be used to obtain an access token that 
+ * you can save for further use within your application.
+ *
+ * @file
  */
 
-require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
-$flickr = new \Samwilson\PhpFlickr\PhpFlickr("<api key>", "<secret>");
+$configFile = __DIR__ . '/config.php';
+require_once $configFile;
+if (empty($apiKey) || empty($apiSecret)) {
+    echo 'Please set $apiKey and $apiSecret in '.$configFile;
+    exit(1);
+}
+$flickr = new \Samwilson\PhpFlickr\PhpFlickr($apiKey, $apiSecret);
 
-//change this to the permissions you will need
-$flickr->auth("read");
+if (isset($_SERVER['SERVER_NAME'])) {
 
-echo "Copy this token into your code: " . $_SESSION['phpFlickr_auth_token'];
+    /*
+     * The web-browser workflow.
+     */
+    $storage = new \OAuth\Common\Storage\Session();
+    $flickr->setOauthStorage($storage);
+
+    if (!isset($_GET['oauth_token'])) {
+        $callbackHere = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+        $url = $flickr->getAuthUrl('read', $callbackHere);
+        echo "<a href='$url'>$url</a>";
+    }
+
+    if (isset($_GET['oauth_token'])) {
+        $accessToken = $flickr->retrieveAccessToken($_GET['oauth_verifier'], $_GET['oauth_token']);
+    }
+
+} else {
+
+    /*
+     * The CLI workflow.
+     */
+    $storage = new \OAuth\Common\Storage\Memory();
+    $flickr->setOauthStorage($storage);
+
+    $url = $flickr->getAuthUrl('read');
+    echo "Go to $url\nEnter access code: ";
+    $code = fgets(STDIN);
+    $verifier = preg_replace('/[^0-9]/', '', $code);
+    $accessToken = $flickr->retrieveAccessToken($verifier);
+}
+
+if (isset($accessToken) && $accessToken instanceof \OAuth\Common\Token\TokenInterface) {
+
+    /*
+     * You should save the access token and its secret somewhere safe.
+     */
+    echo '$accessToken = "'.$accessToken->getAccessToken().'";'.PHP_EOL;
+    echo '$accessTokenSecret = "'.$accessToken->getAccessTokenSecret().'";'.PHP_EOL;
+}
