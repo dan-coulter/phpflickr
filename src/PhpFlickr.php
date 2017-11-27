@@ -232,9 +232,48 @@ class PhpFlickr
         return false;
     }
 
+    /**
+     * Set a custom post() callback.
+     * @deprecated since 4.1.0
+     * @param callback $function
+     */
     function setCustomPost($function)
     {
         $this->custom_post = $function;
+    }
+
+    /**
+     * Submit a POST request to Flickr. If a custom POST callback is set, that will be used.
+     * @deprecated since 4.1.0
+     * @param string[] $data The request parameters, with a 'method' element.
+     * @param mixed $type If null, the Flickr REST endpoint will be passed to a custom post()
+     * method (if one is defined; see PhpFlickr::setCustomPast()). Must be non-null for use without
+     * a custom POST callback.
+     * @return string The response body.
+     * @throws Exception
+     */
+    public function post($data, $type = null) {
+        if (is_null($type)) {
+            $url = $this->rest_endpoint;
+        }
+
+        if (!is_null($this->custom_post)) {
+            return call_user_func($this->custom_post, $url, $data);
+        }
+
+        if (!preg_match("|https://(.*?)(/.*)|", $url, $matches)) {
+            throw new Exception('There was some problem figuring out your endpoint');
+        }
+
+        if (!isset($data['method'])) {
+            throw new Exception('The $data array must have a "method" parameter');
+        }
+        $path = $data['method'];
+        unset($data['method']);
+
+        $oauthService = $this->getOauthService();
+        $response = $oauthService->request($path, 'POST', $data);
+        return $response;
     }
 
     /**
@@ -620,11 +659,11 @@ class PhpFlickr
      * Get the initial authorization URL to which to redirect users.
      *
      * This method submits a request to Flickr, so only use it at the request of the user
-     * (so as to not slow things down or perform unexpected actions).
+     * so as to not slow things down or perform unexpected actions.
      *
      * @param string $perm One of 'read', 'write', or 'delete'.
-     * @param string $callbackUrl Defaults to 'out-of-band' for when no callback is required, for
-     * example for a CLI application.
+     * @param string $callbackUrl Defaults to 'oob' ('out-of-band') for when no callback is
+     * required, for example for console usage.
      * @return string
      */
     public function getAuthUrl($perm = 'read', $callbackUrl = 'oob')

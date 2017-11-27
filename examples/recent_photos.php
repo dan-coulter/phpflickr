@@ -17,7 +17,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $configFile = __DIR__ . '/config.php';
 require_once $configFile;
 if (empty($apiKey) || empty($apiSecret) || empty($accessToken) || empty($accessTokenSecret)) {
-    echo 'Please set $apiKey, $apiSecret, $accessToken, and $accessTokenSecret in '.$configFile;
+    echo 'Please set $apiKey, $apiSecret, $accessToken, and $accessTokenSecret in ' . $configFile;
     exit(1);
 }
 
@@ -41,12 +41,12 @@ $recent = $phpFlickr->photos_getContactsPhotos();
 echo '<ul>';
 foreach ($recent as $photo) {
     $owner = $phpFlickr->people_getInfo($photo['owner']);
-    echo "<li>";
+    echo "<li> Photo: ";
     echo "<a href='https://www.flickr.com/photos/" . $photo['owner'] . "/" . $photo['id'] . "/'>";
     echo $photo['title'];
-    echo "</a> Owner: ";
+    echo "</a>. Owner: ";
     echo "<a href='https://www.flickr.com/people/" . $photo['owner'] . "/'>";
     echo $owner['username'];
-    echo "</a><li>";
+    echo "</a>.</li>";
 }
 echo '</ul>';

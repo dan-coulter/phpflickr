@@ -29,11 +29,11 @@ $flickr = new \Samwilson\PhpFlickr\PhpFlickr($apiKey, $apiSecret);
 The constructor takes three arguments:
 
 1. `$api_key` — This is the API key given to you by Flickr
-   when you [register your app](https://www.flickr.com/services/api/keys/).
+   when you [register an app](https://www.flickr.com/services/api/keys/).
 
-2. `$secret` — The "secret" is optional because it is only required to 
+2. `$secret` — The API secret is optional because it is only required to
    make authenticated requests ([see below](#making-authenticated-requests)).
-   It is given to you along with your API key.
+   It is given to you along with your API key when you register an app.
 
 3. `$die_on_error` - This takes a boolean value and determines 
    whether the class will die (aka cease operation) if the API 
@@ -71,7 +71,7 @@ This authentication method is somewhat complex,
 but is secure and allows your users to feel a little safer authenticating to your application.
 You don't have to ask for their username and password.
 
-👉 *Read more about the [Flickr Authentication API](https://www.flickr.com/services/api/auth.oauth.html).*
+☛ *Read more about the [Flickr Authentication API](https://www.flickr.com/services/api/auth.oauth.html).*
 
 We know how difficult this API looks at first glance,
 so we've tried to make it as transparent as possible for users of phpFlickr.
@@ -83,7 +83,8 @@ To have end users authenticate their accounts:
    and give it to PhpFlickr.
    This must be an implementation of TokenStorageInterface,
    and will usually be of type `Session` (for browser-based workflows)
-   or `Memory` (for command-line workflows).
+   or `Memory` (for command-line workflows)
+   — or you can create your own implementation.
 
    ```php
    $storage = new \OAuth\Common\Storage\Memory();
@@ -95,6 +96,7 @@ To have end users authenticate their accounts:
    (which is either `read`, `write`, or `delete`).
 
    ```php
+   $perm = 'read';
    $url = $flickr->getAuthUrl($perm, $callbackUrl);
    ```
 
@@ -115,20 +117,22 @@ To have end users authenticate their accounts:
       ```
    2. For the CLI workflow, it's much the same,
       but because you've still got access to the request token
-      you can leave off the request token:
+      you can leave it out when you run this request:
       ```php
       $verifier = '<9-digit code stripped of hyphens and spaces>';
       $accessToken = $flickr->retrieveAccessToken($verifier);
       ```
 
-5. Now you can save the access token
-   (using the `$accessToken->getAccessToken()` and `$accessToken->getAccessTokenSecret()` methods)
+5. Now you can save the two string parts of the access token
+   (which you can get via
+   the `$accessToken->getAccessToken()` and `$accessToken->getAccessTokenSecret()` methods)
    and use this for future requests.
-   The access token doesn't expire.
+   The access token doesn't expire, and must be stored securely
+   (the details of doing that are outside the scope of PhpFlickr).
 
 ## Making authenticated requests
 
-Once you have an access token (see above),
+Once you have an access token (see [above](#authentication)),
 you can store it somewhere secure and use it to make authenticated requests at a later time.
 To do this, first create a storage object
 (again, as for the initial authentication process, you can choose between different storage types,
@@ -153,7 +157,7 @@ $flickr->setOauthStorage($storage);
 $recent = $phpFlickr->photos_getContactsPhotos();
 ```
 
-See the [Usage section](#Usage) above for more details on the request methods,
+See the [Usage section](#usage) above for more details on the request methods,
 and the `examples/recent_photos.php` file for a working example.
 
 ## Caching
@@ -164,7 +168,7 @@ are making).  I've built in caching that will access either a database or files
 in your filesystem.  To enable caching, use the phpFlickr::enableCache() function.
 This function requires at least two arguments. The first will be the type of
 cache you're using (either "db" or "fs")
-
+    
 1.  If you're using database caching, you'll need to supply a PEAR::DB style connection
     string. For example: 
 
