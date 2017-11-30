@@ -23,6 +23,7 @@ namespace Samwilson\PhpFlickr;
 
 use Exception;
 use OAuth\Common\Consumer\Credentials;
+use OAuth\Common\Storage\Memory;
 use OAuth\Common\Storage\TokenStorageInterface;
 use OAuth\OAuth1\Service\Flickr;
 use OAuth\OAuth1\Token\StdOAuth1Token;
@@ -38,7 +39,10 @@ class PhpFlickr
     protected $replace_endpoint = 'https://up.flickr.com/services/replace/';
     protected $req;
     protected $response;
+
+    /** @var string[]|bool */
     protected $parsed_response;
+
     protected $cache = false;
     protected $cache_db = null;
     protected $cache_table = null;
@@ -719,21 +723,22 @@ class PhpFlickr
      */
     public function getOauthTokenStorage() {
         if (!$this->oauthTokenStorage instanceof TokenStorageInterface) {
-            throw new FlickrException('Please call PhpFlickr::setOauthTokenStorage() before this');
+            // If no storage has yet been set, create an in-memory one with an empty token.
+            // This will be suitable for un-authenticated API calls.
+            $this->oauthTokenStorage = new Memory();
+            $this->oauthTokenStorage->storeAccessToken('Flickr', new StdOAuth1Token());
         }
         return $this->oauthTokenStorage;
     }
 
-    /*******************************
-
-    To use the phpFlickr::call method, pass a string containing the API method you want
-    to use and an associative array of arguments.  For example:
-        $result = $f->call("flickr.photos.comments.getList", array("photo_id"=>'34952612'));
-    This method will allow you to make calls to arbitrary methods that haven't been
-    implemented in phpFlickr yet.
-
-    *******************************/
-
+    /**
+     * Make a call to the Flickr API. This method allows you to call API methods that have not 
+     * yet been implemented in PhpFlickr. You should use other more specific methods of this 
+     * class if possible.
+     * @param string $method The API method name.
+     * @param string[] $arguments The API method arguments.
+     * @return string[]|bool The results of the call, or false if there were none.
+     */
     public function call($method, $arguments)
     {
         foreach ($arguments as $key => $value) {
@@ -1210,25 +1215,26 @@ class PhpFlickr
 
     /**
      * Returns a list of the latest public photos uploaded to flickr.
+     * This method does not require authentication.
      * @link https://www.flickr.com/services/api/flickr.photos.getRecent.html
-     * @param string[] $extras A comma-delimited list of extra information to fetch for each
-     * returned record. Currently supported fields are: description, license, date_upload,
-     * date_taken, owner_name, icon_server, original_format, last_update, geo, tags, machine_tags,
-     * o_dims, views, media, path_alias, url_sq, url_t, url_s, url_q, url_m, url_n, url_z, url_c,
-     * url_l, url_o
-     * @param integer $per_page Number of photos to return per page. If this argument is omitted,
+     * @param string[]|string $extras An array or comma-separated list of extra information to 
+     * fetch for each returned record. Currently supported fields are: description, license,
+     * date_upload, date_taken, owner_name, icon_server, original_format, last_update, geo, tags,
+     * machine_tags, o_dims, views, media, path_alias, url_sq, url_t, url_s, url_q, url_m, url_n,
+     * url_z, url_c, url_l, and url_o. For details of the size suffixes,
+     * see https://www.flickr.com/services/api/misc.urls.html
+     * @param int $perPage Number of photos to return per page. If this argument is omitted,
      * it defaults to 100. The maximum allowed value is 500.
      * @param integer $page The page of results to return. If this argument is omitted, it defaults
      * to 1.
-     * @return bool
+     * @return string[]|bool
      */
-    function photosGetRecent($extras = [], $per_page = null, $page = null)
+    function photosGetRecent($extras = [], $perPage = null, $page = null)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.getRecent.html */
         if (is_array($extras)) {
             $extras = implode(",", $extras);
         }
-        $args = [ 'extras' => $extras, 'per_page' => $per_page, 'page' => $page ];
+        $args = ['extras' => $extras, 'per_page' => $perPage, 'page' => $page ];
         return $this->call('flickr.photos.getRecent', $args);
     }
 
