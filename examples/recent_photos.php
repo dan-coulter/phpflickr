@@ -1,11 +1,11 @@
 <?php
 /**
- * This example file shows you how to retrieve information about your contacts' ten most recent 
- * photos. Before using this, you should use examples/get_auth_token.php to retrieve an access 
+ * This example file shows you how to retrieve information about your contacts' ten most recent
+ * photos. Before using this, you should use examples/get_auth_token.php to retrieve an access
  * token and add it to examples/config.php.
  *
  * Most of the processing time in this file comes from the ten calls to flickr.people.getInfo.
- * Enabling caching will help a whole lot with this as there are many people who post multiple 
+ * Enabling caching will help a whole lot with this as there are many people who post multiple
  * photos at once.
  *
  * @file
