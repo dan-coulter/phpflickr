@@ -1,7 +1,7 @@
 <?php
 /**
- * The simplest example, of an API that doesn't require authentication. In this situation, you 
- * don't need to provide the API secret.
+ * The simplest example of PhpFlickr: an API call that doesn't require authentication.
+ * In this situation, you don't need to provide the API secret.
  * @file
  */
 

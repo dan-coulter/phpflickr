@@ -23,6 +23,7 @@ namespace Samwilson\PhpFlickr;
 
 use Exception;
 use OAuth\Common\Consumer\Credentials;
+use OAuth\Common\Http\Exception\TokenResponseException;
 use OAuth\Common\Storage\Memory;
 use OAuth\Common\Storage\TokenStorageInterface;
 use OAuth\OAuth1\Service\Flickr;
@@ -1947,11 +1948,19 @@ class PhpFlickr
         return $this->parsed_response ? $this->parsed_response : false;
     }
 
+    /**
+     * A testing method which checks if the caller is logged in then returns their username.
+     * @link https://www.flickr.com/services/api/flickr.test.login.html
+     * @return bool|string The username, or false if unable to log in.
+     */
     public function test_login()
     {
-        /* https://www.flickr.com/services/api/flickr.test.login.html */
-        $this->request("flickr.test.login");
-        return $this->parsed_response ? $this->parsed_response['user'] : false;
+        try {
+            $this->request("flickr.test.login");
+            return $this->parsed_response ? $this->parsed_response['user'] : false;
+        } catch (TokenResponseException $exception) {
+            return false;
+        }
     }
 
     public function urls_getGroup($group_id)
