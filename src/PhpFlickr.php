@@ -1950,9 +1950,10 @@ class PhpFlickr
     }
 
     /**
-     * A testing method which checks if the caller is logged in then returns their username.
+     * A testing method which checks if the caller is logged in then returns their details.
      * @link https://www.flickr.com/services/api/flickr.test.login.html
-     * @return bool|string The username, or false if unable to log in.
+     * @return string[]|bool An array with 'id', 'username' and 'path_alias' keys,
+     * or false if unable to log in.
      */
     public function test_login()
     {

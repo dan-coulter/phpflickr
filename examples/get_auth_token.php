@@ -3,7 +3,7 @@
  * This file demonstrates the authentication workflows for both browser and CLI.
  *
  * It is an example only, and you should understand what it's doing and adapt it for your uses.
- * However, it is a fully working example, and so can also be used to obtain an access token that 
+ * However, it is a fully working example, and so can also be used to obtain an access token that
  * you can save for further use within your application.
  *
  * @file
@@ -20,7 +20,6 @@ if (empty($apiKey) || empty($apiSecret)) {
 $flickr = new \Samwilson\PhpFlickr\PhpFlickr($apiKey, $apiSecret);
 
 if (isset($_SERVER['SERVER_NAME'])) {
-
     /*
      * The web-browser workflow.
      */
@@ -38,7 +37,6 @@ if (isset($_SERVER['SERVER_NAME'])) {
     }
 
 } else {
-
     /*
      * The CLI workflow.
      */
@@ -53,7 +51,6 @@ if (isset($_SERVER['SERVER_NAME'])) {
 }
 
 if (isset($accessToken) && $accessToken instanceof \OAuth\Common\Token\TokenInterface) {
-
     /*
      * You should save the access token and its secret somewhere safe.
      */
