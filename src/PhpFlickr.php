@@ -24,6 +24,7 @@ namespace Samwilson\PhpFlickr;
 use Exception;
 use OAuth\Common\Consumer\Credentials;
 use OAuth\Common\Http\Exception\TokenResponseException;
+use OAuth\Common\Http\Uri\Uri;
 use OAuth\Common\Storage\Memory;
 use OAuth\Common\Storage\TokenStorageInterface;
 use OAuth\OAuth1\Service\Flickr;
@@ -669,7 +670,7 @@ class PhpFlickr
      * @param string $perm One of 'read', 'write', or 'delete'.
      * @param string $callbackUrl Defaults to 'oob' ('out-of-band') for when no callback is
      * required, for example for console usage.
-     * @return string
+     * @return Uri
      */
     public function getAuthUrl($perm = 'read', $callbackUrl = 'oob')
     {
