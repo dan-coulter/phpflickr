@@ -41,10 +41,9 @@ $recent = $phpFlickr->photos_getContactsPhotos();
 echo '<ul>';
 foreach ($recent as $photo) {
     $owner = $phpFlickr->people_getInfo($photo['owner']);
-    echo "<li> Photo: ";
-    echo "<a href='https://www.flickr.com/photos/" . $photo['owner'] . "/" . $photo['id'] . "/'>";
-    echo $photo['title'];
-    echo "</a>. Owner: ";
+    $url = 'https://flic.kr/p/' . \Samwilson\PhpFlickr\Util::base58encode($photo['id']);
+    echo "<li> Photo: <a href='$url'>" . $photo['title'] . "</a>";
+    echo "Owner: ";
     echo "<a href='https://www.flickr.com/people/" . $photo['owner'] . "/'>";
     echo $owner['username'];
     echo "</a>.</li>";
