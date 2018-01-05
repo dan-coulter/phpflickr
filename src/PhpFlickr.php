@@ -324,7 +324,7 @@ class PhpFlickr
             $this->error_code = false;
             $this->error_msg = false;
         }
-        return $this->response;
+        return $this->parsed_response;
     }
 
     public function clean_text_nodes($arr)
@@ -773,31 +773,48 @@ class PhpFlickr
         return $this->parsed_response ? $this->parsed_response['items']['item'] : false;
     }
 
-    /* Authentication methods */
+    /**
+     * @link https://www.flickr.com/services/api/flickr.auth.checkToken.html
+     * @deprecated Use OAuth instead.
+     * @return bool|string
+     */
     public function auth_checkToken()
     {
-        /* https://www.flickr.com/services/api/flickr.auth.checkToken.html */
         $this->request('flickr.auth.checkToken');
         return $this->parsed_response ? $this->parsed_response['auth'] : false;
     }
 
+    /**
+     * @link https://www.flickr.com/services/api/flickr.auth.getFrob.html
+     * @deprecated Use OAuth instead.
+     * @return bool|string
+     */
     public function auth_getFrob()
     {
-        /* https://www.flickr.com/services/api/flickr.auth.getFrob.html */
         $this->request('flickr.auth.getFrob');
         return $this->parsed_response ? $this->parsed_response['frob'] : false;
     }
 
+    /**
+     * @link https://www.flickr.com/services/api/flickr.auth.getFullToken.html
+     * @deprecated Use OAuth instead.
+     * @param $mini_token
+     * @return bool|string
+     */
     public function auth_getFullToken($mini_token)
     {
-        /* https://www.flickr.com/services/api/flickr.auth.getFullToken.html */
         $this->request('flickr.auth.getFullToken', array('mini_token'=>$mini_token));
         return $this->parsed_response ? $this->parsed_response['auth'] : false;
     }
 
+    /**
+     * @link https://www.flickr.com/services/api/flickr.auth.getToken.html
+     * @deprecated Use OAuth instead.
+     * @param $frob
+     * @return bool|string
+     */
     public function auth_getToken($frob)
     {
-        /* https://www.flickr.com/services/api/flickr.auth.getToken.html */
         $this->request('flickr.auth.getToken', array('frob'=>$frob));
         $_SESSION['phpFlickr_auth_token'] = $this->parsed_response['auth']['token'];
         return $this->parsed_response ? $this->parsed_response['auth'] : false;
@@ -1066,19 +1083,33 @@ class PhpFlickr
         return $this->call('flickr.panda.getPhotos', array('panda_name' => $panda_name, 'extras' => $extras, 'per_page' => $per_page, 'page' => $page));
     }
 
-    /* People methods */
-    public function people_findByEmail($find_email)
+    /**
+     * Get the API methods for people.
+     * @return PeopleApi
+     */
+    public function people()
     {
-        /* https://www.flickr.com/services/api/flickr.people.findByEmail.html */
-        $this->request("flickr.people.findByEmail", array("find_email"=>$find_email));
-        return $this->parsed_response ? $this->parsed_response['user'] : false;
+        return new PeopleApi( $this );
     }
 
+    /**
+     * @deprecated
+     * @param $find_email
+     * @return bool|string
+     */
+    public function people_findByEmail($find_email)
+    {
+        return $this->people()->findByEmail($find_email);
+    }
+
+    /**
+     * @deprecated
+     * @param $username
+     * @return bool
+     */
     public function people_findByUsername($username)
     {
-        /* https://www.flickr.com/services/api/flickr.people.findByUsername.html */
-        $this->request("flickr.people.findByUsername", array("username"=>$username));
-        return $this->parsed_response ? $this->parsed_response['user'] : false;
+        return $this->people()->findByUsername($username);
     }
 
     public function people_getInfo($user_id)
@@ -1304,7 +1335,7 @@ class PhpFlickr
          */
 
         /* https://www.flickr.com/services/api/flickr.photos.search.html */
-        $result = $this->request("flickr.photos.search", $args);
+        $this->request("flickr.photos.search", $args);
         return ($this->parsed_response) ? $this->parsed_response['photos'] : false;
     }
 
