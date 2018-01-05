@@ -53,13 +53,13 @@ class Util {
     }
 
     /**
-     * Get the privacy integer given the three categories.
+     * Get the privacy integer given the three privacy categories.
      * @param bool $isPublic
      * @param bool $isFriend
      * @param bool $isFamily
      * @return int
      */
-    public function privacyLevel($isPublic, $isFriend, $isFamily)
+    public static function privacyLevel($isPublic, $isFriend, $isFamily)
     {
         if ($isPublic) {
             return static::PRIVACY_PUBLIC;
@@ -74,5 +74,20 @@ class Util {
             return static::PRIVACY_FAMILY;
         }
         return static::PRIVACY_PRIVATE;
+    }
+
+    /**
+     * Get all privacy levels.
+     * @return array
+     */
+    public static function getPrivacyLevels()
+    {
+        return [
+            'public' => static::PRIVACY_PUBLIC,
+            'friends_family' => static::PRIVACY_FRIENDS_FAMILY,
+            'friends' => static::PRIVACY_FRIENDS,
+            'family' => static::PRIVACY_FAMILY,
+            'private' => static::PRIVACY_PRIVATE,
+        ];
     }
 }
