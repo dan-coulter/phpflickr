@@ -1119,6 +1119,12 @@ class PhpFlickr
         return $this->parsed_response ? $this->parsed_response['person'] : false;
     }
 
+    /**
+     * @deprecated
+     * @param $user_id
+     * @param array $args
+     * @return bool|string[]
+     */
     public function people_getPhotos($user_id, $args = array())
     {
         /* This function strays from the method of arguments that I've
