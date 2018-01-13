@@ -1169,6 +1169,10 @@ class PhpFlickr
         return $this->parsed_response ? $this->parsed_response['user'] : false;
     }
 
+    public function photos()
+    {
+        return new PhotosApi($this);
+    }
 
     /* Photos Methods */
     public function photos_addTags($photo_id, $tags)
@@ -1477,20 +1481,28 @@ class PhpFlickr
         return $this->call('flickr.photos.geo.setPerms', array('is_public' => $is_public, 'is_contact' => $is_contact, 'is_friend' => $is_friend, 'is_family' => $is_family, 'photo_id' => $photo_id));
     }
 
-    /* Photos - Licenses Methods */
-    public function photos_licenses_getInfo()
+    /**
+     * @return PhotosLicensesApi
+     */
+    public function photosLicenses()
     {
-        /* https://www.flickr.com/services/api/flickr.photos.licenses.getInfo.html */
-        $this->request("flickr.photos.licenses.getInfo");
-        return $this->parsed_response ? $this->parsed_response['licenses']['license'] : false;
+        return new PhotosLicensesApi($this);
     }
 
+    /**
+     * @deprecated
+     */
+    public function photos_licenses_getInfo()
+    {
+        return $this->photosLicenses()->getInfo();
+    }
+
+    /**
+     * @deprecated
+     */
     public function photos_licenses_setLicense($photo_id, $license_id)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.licenses.setLicense.html */
-        /* Requires Authentication */
-        $this->request("flickr.photos.licenses.setLicense", array("photo_id"=>$photo_id, "license_id"=>$license_id), true);
-        return $this->parsed_response ? true : false;
+        return $this->photosLicenses()->setLicense($photo_id, $license_id);
     }
 
     /* Photos - Notes Methods */
