@@ -2,7 +2,7 @@
 	"name": "samwilson/phpflickr",
 	"description": "A PHP wrapper for the Flickr API, including Oauth.",
 	"type": "library",
-	"license": "GPL-3.0+",
+	"license": "GPL-3.0-or-later",
 	"autoload": {
 		"psr-4": {
 			"Samwilson\\PhpFlickr\\": "src/"
