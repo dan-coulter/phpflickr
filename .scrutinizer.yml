@@ -22,3 +22,5 @@ build:
         command: ./vendor/bin/minus-x check . -q
       -
         command: ./vendor/bin/phpcs -s .
+      -
+        command: ./vendor/bin/phpunit
