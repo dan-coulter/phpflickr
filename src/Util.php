@@ -2,7 +2,8 @@
 
 namespace Samwilson\PhpFlickr;
 
-class Util {
+class Util
+{
 
     const BASE58_ALPHABET = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
     const PRIVACY_PUBLIC = 1;
@@ -17,7 +18,8 @@ class Util {
      * @param int $num
      * @return string
      */
-    public static function base58encode($num) {
+    public static function base58encode($num)
+    {
         $base_count = strlen(static::BASE58_ALPHABET);
         $encoded = '';
         while ($num >= $base_count) {
@@ -40,7 +42,8 @@ class Util {
      * @param int $num
      * @return bool|int
      */
-    public static function base58decode($num) {
+    public static function base58decode($num)
+    {
         $decoded = 0;
         $multi = 1;
         while (strlen($num) > 0) {
@@ -89,5 +92,19 @@ class Util {
             'family' => static::PRIVACY_FAMILY,
             'private' => static::PRIVACY_PRIVATE,
         ];
+    }
+
+    /**
+     * Get the name of a given privacy level.
+     * @param int $id The value of one of the PRIVACY_* constants.
+     * @return string|bool The name of the privacy leve, or false if it doesn't exist.
+     */
+    public static function getPrivacyLevelById($id)
+    {
+        $privacyLevels = array_flip(static::getPrivacyLevels());
+        if (!isset($privacyLevels[$id])) {
+            return false;
+        }
+        return $privacyLevels[$id];
     }
 }
