@@ -34,9 +34,6 @@ $phpFlickr = new \Samwilson\PhpFlickr\PhpFlickr($apiKey, $apiSecret);
 // Give PhpFlickr the storage containing the access token.
 $phpFlickr->setOauthStorage($storage);
 
-var_dump($phpFlickr->photosLicenses()->getInfo());
-exit();
-
 // Make a request.
 $recent = $phpFlickr->photos_getContactsPhotos();
 

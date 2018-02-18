@@ -1169,6 +1169,9 @@ class PhpFlickr
         return $this->parsed_response ? $this->parsed_response['user'] : false;
     }
 
+    /**
+     * @return PhotosApi
+     */
     public function photos()
     {
         return new PhotosApi($this);
@@ -1237,10 +1240,18 @@ class PhpFlickr
         return $this->parsed_response ? $this->parsed_response['photo'] : false;
     }
 
+    /**
+     * @deprecated Use $this->photos()->getInfo() instead.
+     * @param $photo_id
+     * @param null $secret
+     * @param null $humandates
+     * @param null $privacy_filter
+     * @param null $get_contexts
+     * @return bool|string[]
+     */
     public function photos_getInfo($photo_id, $secret = null, $humandates = null, $privacy_filter = null, $get_contexts = null)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.getInfo.html */
-        return $this->call('flickr.photos.getInfo', array('photo_id' => $photo_id, 'secret' => $secret, 'humandates' => $humandates, 'privacy_filter' => $privacy_filter, 'get_contexts' => $get_contexts));
+        return $this->photos()->getInfo($photo_id, $secret);
     }
 
     public function photos_getNotInSet($max_upload_date = null, $min_taken_date = null, $max_taken_date = null, $privacy_filter = null, $media = null, $min_upload_date = null, $extras = null, $per_page = null, $page = null)
@@ -1281,11 +1292,14 @@ class PhpFlickr
         return $this->call('flickr.photos.getRecent', $args);
     }
 
-    public function photos_getSizes($photo_id)
+    /**
+     * @deprecated Use $this->photos()->getSizes() instead.
+     * @param int $photoId The photo ID.
+     * @return bool|string[]
+     */
+    public function photos_getSizes($photoId)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.getSizes.html */
-        $this->request("flickr.photos.getSizes", array("photo_id"=>$photo_id));
-        return $this->parsed_response ? $this->parsed_response['sizes']['size'] : false;
+        return $this->photos()->getSizes($photoId);
     }
 
     public function photos_getUntagged($min_upload_date = null, $max_upload_date = null, $min_taken_date = null, $max_taken_date = null, $privacy_filter = null, $media = null, $extras = null, $per_page = null, $page = null)
