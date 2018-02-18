@@ -162,47 +162,14 @@ and the `examples/recent_photos.php` file for a working example.
 
 ## Caching
 
-Caching can be very important to a project.  Just a few calls to the Flickr API
-can take long enough to bore your average web user (depending on the calls you
-are making).  I've built in caching that will access either a database or files
-in your filesystem.  To enable caching, use the phpFlickr::enableCache() function.
-This function requires at least two arguments. The first will be the type of
-cache you're using (either "db" or "fs")
-    
-1.  If you're using database caching, you'll need to supply a PEAR::DB style connection
-    string. For example: 
+PhpFlickr can be used with any PSR-6 compatible cache, such as
+[symfony/cache](https://packagist.org/packages/symfony/cache)
+or [tedivm/stash](https://packagist.org/packages/tedivm/stash).
 
-        $flickr->enableCache("db", "mysql://user:password@server/database");
-        
-    The third (optional) argument is expiration of the cache in seconds (defaults 
-    to 600).  The fourth (optional) argument is the table where you want to store
-    the cache.  This defaults to flickr_cache and will attempt to create the table
-    if it does not already exist.
-    
-2.  If you're using filesystem caching, you'll need to supply a folder where the
-    web server has write access. For example: 
-    
-        $flickr->enableCache("fs", "/var/www/phpFlickrCache");
-    
-    The third (optional) argument is, the same as in the Database caching, an
-    expiration in seconds for the cache.
+To enable caching, pass a configured cache object to `PhpFlickr::setCache($cacheItemPool)`.
 
-    Note: filesystem caching will probably be slower than database caching. I
-    haven't done any tests of this, but if you get large amounts of calls, the
-    process of cleaning out old calls may get hard on your server.
-        
-    You may not want to allow the world to view the files that are created during
-    caching.  If you want to hide this information, either make sure that your
-    permissions are set correctly, or disable the webserver from displaying 
-    *.cache files.  In Apache, you can specify this in the configuration files
-    or in a .htaccess file with the following directives:
-        
-        <FilesMatch "\.cache$">
-            Deny from all
-        </FilesMatch>
-    
-    Alternatively, you can specify a directory that is outside of the web server's
-    document root.
+All requests are cached for the same time duration, which by default is 10 minutes.
+This can be changed with the `PhpFlickr::setCacheDefaultExpiry()`.
 
 ## Uploading
 

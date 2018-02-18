@@ -35,7 +35,6 @@ if (isset($_SERVER['SERVER_NAME'])) {
     if (isset($_GET['oauth_token'])) {
         $accessToken = $flickr->retrieveAccessToken($_GET['oauth_verifier'], $_GET['oauth_token']);
     }
-
 } else {
     /*
      * The CLI workflow.

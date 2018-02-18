@@ -21,6 +21,7 @@
 
 namespace Samwilson\PhpFlickr;
 
+use DateInterval;
 use Exception;
 use OAuth\Common\Consumer\Credentials;
 use OAuth\Common\Http\Exception\TokenResponseException;
@@ -31,6 +32,7 @@ use OAuth\OAuth1\Service\Flickr;
 use OAuth\OAuth1\Token\StdOAuth1Token;
 use OAuth\OAuth2\Token\TokenInterface;
 use OAuth\ServiceFactory;
+use Psr\Cache\CacheItemPoolInterface;
 
 class PhpFlickr
 {
@@ -45,18 +47,23 @@ class PhpFlickr
     /** @var string[]|bool */
     protected $parsed_response;
 
+    /** @var CacheItemPoolInterface */
+    protected $cachePool;
+
+    /** @var int|DateInterval */
+    protected $cacheDefaultExpiry = 600;
+
     protected $cache = false;
     protected $cache_db = null;
     protected $cache_table = null;
     protected $cache_dir = null;
     protected $cache_expire = null;
-    protected $cache_key = null;
-    protected $last_request = null;
+
     protected $die_on_error;
     protected $error_code;
     protected $error_msg;
     protected $token;
-    protected $php_version;
+
     protected $custom_post = null;
     protected $custom_cache_get = null;
     protected $custom_cache_set = null;
@@ -94,12 +101,29 @@ class PhpFlickr
         $this->secret = $secret;
         $this->die_on_error = $die_on_error;
         $this->service = "flickr";
-
-        //Find the PHP version and store it for future reference
-        $this->php_version = explode("-", phpversion());
-        $this->php_version = explode(".", $this->php_version[0]);
     }
 
+    /**
+     * Set the cache pool (and in doing so, enable caching).
+     * @param CacheItemPoolInterface $pool
+     */
+    public function setCache(CacheItemPoolInterface $pool)
+    {
+        $this->cachePool = $pool;
+    }
+
+    /**
+     * Set the cache time-to-live. This value is used for all cache items. Defaults to 10 minutes.
+     * @param int|DateInterval|null $time
+     */
+    public function setCacheDefaultExpiry($time)
+    {
+        $this->cacheDefaultExpiry = $time;
+    }
+
+    /**
+     * @deprecated Use $this->setCache() instead.
+     */
     public function enableCache($type, $connection, $cache_expire = 600, $table = 'flickr_cache')
     {
         // Turns on caching.  $type must be either "db" (for database caching) or "fs" (for filesystem).
@@ -160,6 +184,11 @@ class PhpFlickr
         $this->cache_expire = $cache_expire;
     }
 
+    /**
+     * Get a cached request.
+     * @param string[] Array of request parameters ('api_sig' will be discarded).
+     * @return string[]
+     */
     public function getCached($request)
     {
         //Checks the database or filesystem for a cached result to the request.
@@ -173,12 +202,17 @@ class PhpFlickr
                 $request[$key] = (string) $request[$key];
             }
         }
-        //if ( is_user_logged_in() ) print_r($request);
-        $reqhash = md5(serialize($request));
-        $this->cache_key = $reqhash;
-        $this->cache_request = $request;
-        if ($this->cache == 'db') {
-            $result = mysqli_query($this->cache_db, "SELECT response FROM " . $this->cache_table . " WHERE request = '" . $reqhash . "' AND CURRENT_TIMESTAMP < expiration");
+        $cacheKey = md5(serialize($request));
+
+        if ($this->cachePool instanceof CacheItemPoolInterface) {
+            $item = $this->cachePool->getItem($cacheKey);
+            if ($item->isHit()) {
+                return $item->get();
+            } else {
+                return false;
+            }
+        } elseif ($this->cache == 'db') {
+            $result = mysqli_query($this->cache_db, "SELECT response FROM " . $this->cache_table . " WHERE request = '" . $cacheKey . "' AND CURRENT_TIMESTAMP < expiration");
             if ($result && mysqli_num_rows($result)) {
                 $result = mysqli_fetch_assoc($result);
                 return urldecode($result['response']);
@@ -186,20 +220,22 @@ class PhpFlickr
                 return false;
             }
         } elseif ($this->cache == 'fs') {
-            $file = $this->cache_dir . '/' . $reqhash . '.cache';
+            $file = $this->cache_dir . '/' . $cacheKey . '.cache';
             if (file_exists($file)) {
-                if ($this->php_version[0] > 4 || ($this->php_version[0] == 4 && $this->php_version[1] >= 3)) {
-                    return file_get_contents($file);
-                } else {
-                    return implode('', file($file));
-                }
+                return file_get_contents($file);
             }
         } elseif ($this->cache == 'custom') {
-            return call_user_func_array($this->custom_cache_get, array($reqhash));
+            return call_user_func_array($this->custom_cache_get, array($cacheKey));
         }
         return false;
     }
 
+    /**
+     * Cache a request's response.
+     * @param string $request API request parameters.
+     * @param mixed $response The value to cache. 
+     * @return bool|int|mixed|\mysqli_result
+     */
     public function cache($request, $response)
     {
         //Caches the unparsed response of a request.
@@ -211,12 +247,16 @@ class PhpFlickr
                 $request[$key] = (string) $request[$key];
             }
         }
-        $reqhash = md5(serialize($request));
-        if ($this->cache == 'db') {
-            //$this->cache_db->query("DELETE FROM $this->cache_table WHERE request = '$reqhash'");
+        $cacheKey = md5(serialize($request));
+        if ($this->cachePool instanceof CacheItemPoolInterface) {
+            $item = $this->cachePool->getItem($cacheKey);
+            $item->set($response);
+            $item->expiresAfter($this->cacheDefaultExpiry);
+            return $this->cachePool->save($item);
+        } elseif ($this->cache == 'db') {
             $response = urlencode($response);
             $sql = 'INSERT INTO '.$this->cache_table.' (request, response, expiration) 
-						VALUES (\''.$reqhash.'\', \''.$response.'\', TIMESTAMPADD(SECOND,'.$this->cache_expire.',CURRENT_TIMESTAMP))
+						VALUES (\''.$cacheKey.'\', \''.$response.'\', TIMESTAMPADD(SECOND,'.$this->cache_expire.',CURRENT_TIMESTAMP))
 						ON DUPLICATE KEY UPDATE response=\''.$response.'\', 
 						expiration=TIMESTAMPADD(SECOND,'.$this->cache_expire.',CURRENT_TIMESTAMP) ';
 
@@ -227,13 +267,13 @@ class PhpFlickr
                     
             return $result;
         } elseif ($this->cache == "fs") {
-            $file = $this->cache_dir . "/" . $reqhash . ".cache";
+            $file = $this->cache_dir . "/" . $cacheKey . ".cache";
             $fstream = fopen($file, "w");
             $result = fwrite($fstream, $response);
             fclose($fstream);
             return $result;
         } elseif ($this->cache == "custom") {
-            return call_user_func_array($this->custom_cache_set, array($reqhash, $response, $this->cache_expire));
+            return call_user_func_array($this->custom_cache_set, array($cacheKey, $response, $this->cache_expire));
         }
         return false;
     }
@@ -1241,7 +1281,7 @@ class PhpFlickr
     }
 
     /**
-     * @deprecated Use $this->photos()->getInfo() instead.
+     * @deprecated Use $this->photos()->getInfo() instead.  
      * @param $photo_id
      * @param null $secret
      * @param null $humandates

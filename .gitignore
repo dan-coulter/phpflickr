@@ -3,4 +3,5 @@
 /composer.lock
 /examples/.env
 /examples/config.php
+/examples/cache/
 
