@@ -55,4 +55,10 @@ if (isset($accessToken) && $accessToken instanceof \OAuth\Common\Token\TokenInte
      */
     echo '$accessToken = "'.$accessToken->getAccessToken().'";'.PHP_EOL;
     echo '$accessTokenSecret = "'.$accessToken->getAccessTokenSecret().'";'.PHP_EOL;
+
+    /*
+     * Any methods can now be called.
+     */
+    $login = $flickr->test()->login();
+    echo "You are authenticated as: {$login['username']}\n";
 }

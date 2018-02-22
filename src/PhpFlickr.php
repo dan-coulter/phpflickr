@@ -233,7 +233,7 @@ class PhpFlickr
 
     /**
      * Cache a request's response.
-     * @param string $request API request parameters.
+     * @param string[] $request API request parameters.
      * @param mixed $response The value to cache. 
      * @return bool|int|mixed|\mysqli_result
      */
@@ -338,14 +338,16 @@ class PhpFlickr
             $command = "flickr." . $command;
         }
 
-        // See if there's a cached 
+        // See if there's a cached response.
         $cacheKey = array_merge([$command], $args);
         $this->response = $this->getCached($cacheKey);
         if (!($this->response) || $nocache) {
             $args = array_filter($args);
             $oauthService = $this->getOauthService();
             $this->response = $oauthService->requestJson($command, 'POST', $args);
-            $this->cache($cacheKey, $this->response);
+            if (!$nocache) {
+                $this->cache($cacheKey, $this->response);
+            }
         }
 
         $jsonResponse = json_decode($this->response, true);
@@ -2047,27 +2049,28 @@ class PhpFlickr
         return $this->parsed_response ? $this->parsed_response['tags'] : false;
     }
 
-    public function test_echo($args = array())
+    /**
+     * @return TestApi
+     */
+    public function test()
     {
-        /* https://www.flickr.com/services/api/flickr.test.echo.html */
-        $this->request("flickr.test.echo", $args);
-        return $this->parsed_response ? $this->parsed_response : false;
+        return new TestApi($this);
     }
 
     /**
-     * A testing method which checks if the caller is logged in then returns their details.
-     * @link https://www.flickr.com/services/api/flickr.test.login.html
-     * @return string[]|bool An array with 'id', 'username' and 'path_alias' keys,
-     * or false if unable to log in.
+     * @deprecated Use $this->test()->testEcho() instead.
+     */
+    public function test_echo($args = [])
+    {
+        return $this->test()->testEcho($args);
+    }
+
+    /**
+     * @deprecated Use $this->test()->login() instead.
      */
     public function test_login()
     {
-        try {
-            $this->request("flickr.test.login");
-            return $this->parsed_response ? $this->parsed_response['user'] : false;
-        } catch (TokenResponseException $exception) {
-            return false;
-        }
+        return $this->test()->login();
     }
 
     public function urls_getGroup($group_id)
