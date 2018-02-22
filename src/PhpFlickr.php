@@ -24,6 +24,7 @@ namespace Samwilson\PhpFlickr;
 use DateInterval;
 use Exception;
 use OAuth\Common\Consumer\Credentials;
+use OAuth\Common\Http\Client\CurlClient;
 use OAuth\Common\Http\Exception\TokenResponseException;
 use OAuth\Common\Http\Uri\Uri;
 use OAuth\Common\Storage\Memory;
@@ -695,6 +696,7 @@ class PhpFlickr
         }
         $credentials = new Credentials($this->api_key, $this->secret, $callbackUrl);
         $factory = new ServiceFactory();
+        $factory->setHttpClient(new CurlClient());
         $storage = $this->getOauthTokenStorage();
         /** @var Flickr $flickrService */
         $this->oauthService = $factory->createService('Flickr', $credentials, $storage );
