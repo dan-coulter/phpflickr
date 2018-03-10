@@ -1,4 +1,4 @@
-phpFlickr
+PhpFlickr
 =========
 
 A PHP wrapper for the Flickr API.
@@ -9,6 +9,16 @@ https://github.com/samwilson/phpflickr
 
 [![Build Status](https://scrutinizer-ci.com/g/samwilson/phpflickr/badges/build.png?b=master)](https://scrutinizer-ci.com/g/samwilson/phpflickr/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/samwilson/phpflickr/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/samwilson/phpflickr/?branch=master)
+
+Table of contents:
+
+* [Installation](#installation)
+* [Usage](#usage)
+* [Examples](#examples)
+* [Authentication](#authentication)
+* [Making authenticated requests](#making-authenticated-requests)
+* [Caching](#caching)
+* [Kudos](#kudos)
 
 ## Installation
 
@@ -60,6 +70,15 @@ photos_getWithoutGeodata() which have so many optional arguments
 that it's easier for everyone if you just have to pass an 
 associative array of arguments.  See the comment in the 
 photos_search() definition in phpFlickr.php for more information.
+
+## Examples
+
+There are a few example files in the `examples/` directory.
+To use these, first copy `examples/config.dist.php` to `examples/config.php`
+and run `php examples/get_auth_token.php` to get the access token.
+Add this access token to your `examples/config.php`
+and then you can run any of the examples that require authentication
+(note that not all of them do).
 
 ## Authentication
 
