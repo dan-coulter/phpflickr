@@ -104,4 +104,30 @@ class PhotosApi extends ApiMethodGroup
         }
         return false;
     }
+
+    /**
+     * Returns a list of the latest public photos uploaded to flickr.
+     * This method does not require authentication.
+     * @link https://www.flickr.com/services/api/flickr.photos.getRecent.html
+     * @param string[]|string $extras An array or comma-separated list of extra information to
+     * fetch for each returned record. Currently supported fields are: description, license,
+     * date_upload, date_taken, owner_name, icon_server, original_format, last_update, geo, tags,
+     * machine_tags, o_dims, views, media, path_alias, url_sq, url_t, url_s, url_q, url_m, url_n,
+     * url_z, url_c, url_l, and url_o. For details of the size suffixes,
+     * see https://www.flickr.com/services/api/misc.urls.html
+     * @param int $perPage Number of photos to return per page. If this argument is omitted,
+     * it defaults to 100. The maximum allowed value is 500.
+     * @param integer $page The page of results to return. If this argument is omitted, it defaults
+     * to 1.
+     * @return string[][]|bool
+     */
+    public function getRecent($extras = [], $perPage = null, $page = null)
+    {
+        if (is_array($extras)) {
+            $extras = implode(",", $extras);
+        }
+        $args = ['extras' => $extras, 'per_page' => $perPage, 'page' => $page ];
+        $result = $this->flickr->request('flickr.photos.getRecent', $args);
+        return isset($result['photos']['photo']) ? $result['photos']['photo'] : false;
+    }
 }

@@ -35,7 +35,7 @@ $phpFlickr = new \Samwilson\PhpFlickr\PhpFlickr($apiKey, $apiSecret);
 $phpFlickr->setOauthStorage($storage);
 
 // Make a request.
-$recent = $phpFlickr->photos_getContactsPhotos();
+$recent = $phpFlickr->photos()->getRecent([], 10);
 
 // Display a list of photo titles.
 echo '<ul>';
@@ -43,7 +43,7 @@ foreach ($recent as $photo) {
     $owner = $phpFlickr->people_getInfo($photo['owner']);
     $url = 'https://flic.kr/p/' . \Samwilson\PhpFlickr\Util::base58encode($photo['id']);
     echo "<li> Photo: <a href='$url'>" . $photo['title'] . "</a>";
-    echo "Owner: ";
+    echo "; Owner: ";
     echo "<a href='https://www.flickr.com/people/" . $photo['owner'] . "/'>";
     echo $owner['username'];
     echo "</a>.</li>";
