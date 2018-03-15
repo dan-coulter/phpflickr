@@ -61,6 +61,30 @@ class PhotosApi extends ApiMethodGroup
     }
 
     /**
+     * Get information about the sets to which the given photos belong.
+     * @param int[] $photoIds The photo IDs to look for.
+     * @param string $userId The user who owns the photos (if not set, will default to the
+     * current calling user).
+     * @return string[][]
+     */
+    public function getSets($photoIds, $userId = null)
+    {
+        $out = [];
+        $photoIdsString = join(',', $photoIds);
+        $sets = $this->flickr->photosets()->getList(
+            $userId, null, null, null, $photoIdsString
+        );
+        foreach ($sets['photoset'] as $photoset) {
+            foreach ($photoIds as $photoId) {
+                if (in_array($photoId, $photoset['has_requested_photos'])) {
+                    $out[] = $photoset;
+                }
+            }
+        }
+        return $out;
+    }
+
+    /**
      * Returns the available sizes for a photo. The calling user must have permission to view the photo.
      * @link https://www.flickr.com/services/api/flickr.photos.getSizes.html
      * @link https://www.flickr.com/services/api/misc.urls.html
@@ -69,7 +93,10 @@ class PhotosApi extends ApiMethodGroup
      */
     public function getSizes($photoId)
     {
-        $response = $this->flickr->request('flickr.photos.getSizes', ['photo_id'=>$photoId]);
+        $response = $this->flickr->request(
+            'flickr.photos.getSizes',
+            ['photo_id' => $photoId]
+        );
         return isset($response['sizes']) ? $response['sizes'] : false;
     }
 

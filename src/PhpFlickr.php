@@ -1626,6 +1626,14 @@ class PhpFlickr
         return $this->parsed_response ? $this->parsed_response['uploader']['ticket'] : false;
     }
 
+    /**
+     * @return PhotosetsApi
+     */
+    public function photosets()
+    {
+        return new PhotosetsApi($this);
+    }
+
     /* Photosets Methods */
     public function photosets_addPhoto($photoset_id, $photo_id)
     {
@@ -1675,11 +1683,12 @@ class PhpFlickr
         return $this->parsed_response ? $this->parsed_response['photoset'] : false;
     }
 
+    /**
+     * @deprecated
+     */
     public function photosets_getList($user_id = null, $page = null, $per_page = null, $primary_photo_extras = null)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.getList.html */
-        $this->request("flickr.photosets.getList", array("user_id" => $user_id, 'page' => $page, 'per_page' => $per_page, 'primary_photo_extras' => $primary_photo_extras));
-        return $this->parsed_response ? $this->parsed_response['photosets'] : false;
+        return $this->photosets()->getList($user_id, $page, $per_page, $primary_photo_extras);
     }
 
     public function photosets_getPhotos($photoset_id, $extras = null, $privacy_filter = null, $per_page = null, $page = null, $media = null)
