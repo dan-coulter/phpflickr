@@ -65,7 +65,7 @@ class PhotosApi extends ApiMethodGroup
      * @param int[] $photoIds The photo IDs to look for.
      * @param string $userId The user who owns the photos (if not set, will default to the
      * current calling user).
-     * @return string[][]
+     * @return string[][]|bool Set information, or false if none found (or an error occured).
      */
     public function getSets($photoIds, $userId = null)
     {
@@ -74,6 +74,9 @@ class PhotosApi extends ApiMethodGroup
         $sets = $this->flickr->photosets()->getList(
             $userId, null, null, null, $photoIdsString
         );
+        if (!isset($sets['photoset'])) {
+            return false;
+        }
         foreach ($sets['photoset'] as $photoset) {
             foreach ($photoIds as $photoId) {
                 if (in_array($photoId, $photoset['has_requested_photos'])) {
