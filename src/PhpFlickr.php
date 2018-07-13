@@ -328,7 +328,7 @@ class PhpFlickr
      * @param string $command The API endpoint to call.
      * @param string[] $args The API request arguments.
      * @param bool $nocache Whether to cache the response or not.
-     * @return bool|string[]
+     * @return bool|mixed[]
      * @throws FlickrException If the request fails.
      */
     public function request($command, $args = array(), $nocache = false)
@@ -1634,53 +1634,60 @@ class PhpFlickr
         return new PhotosetsApi($this);
     }
 
-    /* Photosets Methods */
+    /**
+     * @deprecated
+     */
     public function photosets_addPhoto($photoset_id, $photo_id)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.addPhoto.html */
-        $this->request("flickr.photosets.addPhoto", array("photoset_id" => $photoset_id, "photo_id" => $photo_id), true);
-        return $this->parsed_response ? true : false;
+        return $this->photosets()->addPhoto($photoset_id, $photo_id);
     }
 
+    /**
+     * @deprecated
+     */
     public function photosets_create($title, $description, $primary_photo_id)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.create.html */
-        $this->request("flickr.photosets.create", array("title" => $title, "primary_photo_id" => $primary_photo_id, "description" => $description), true);
-        return $this->parsed_response ? $this->parsed_response['photoset'] : false;
+        return $this->photosets()->create($title, $description, $primary_photo_id);
     }
 
+    /**
+     * @deprecated
+     */
     public function photosets_delete($photoset_id)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.delete.html */
-        $this->request("flickr.photosets.delete", array("photoset_id" => $photoset_id), true);
-        return $this->parsed_response ? true : false;
+        return $this->photosets()->delete($photoset_id);
     }
 
+    /**
+     * @deprecated
+     */
     public function photosets_editMeta($photoset_id, $title, $description = null)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.editMeta.html */
-        $this->request("flickr.photosets.editMeta", array("photoset_id" => $photoset_id, "title" => $title, "description" => $description), true);
-        return $this->parsed_response ? true : false;
+        return $this->photosets()->editMeta($photoset_id, $title, $description);
     }
 
+    /**
+     * @deprecated
+     */
     public function photosets_editPhotos($photoset_id, $primary_photo_id, $photo_ids)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.editPhotos.html */
-        $this->request("flickr.photosets.editPhotos", array("photoset_id" => $photoset_id, "primary_photo_id" => $primary_photo_id, "photo_ids" => $photo_ids), true);
-        return $this->parsed_response ? true : false;
+        return $this->photosets()->editPhotos($photoset_id, $primary_photo_id, $photo_ids);
     }
 
+    /**
+     * @deprecated
+     */
     public function photosets_getContext($photo_id, $photoset_id, $num_prev = null, $num_next = null)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.getContext.html */
-        return $this->call('flickr.photosets.getContext', array('photo_id' => $photo_id, 'photoset_id' => $photoset_id, 'num_prev' => $num_prev, 'num_next' => $num_next));
+        return $this->photosets()->getContext($photo_id, $photoset_id);
     }
 
-    public function photosets_getInfo($photoset_id)
+    /**
+     * @deprecated
+     */
+    public function photosets_getInfo($photoset_id, $user_id)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.getInfo.html */
-        $this->request("flickr.photosets.getInfo", array("photoset_id" => $photoset_id));
-        return $this->parsed_response ? $this->parsed_response['photoset'] : false;
+        return $this->photosets()->getInfo($photoset_id, $user_id);
     }
 
     /**

@@ -11,5 +11,7 @@
     <exclude-pattern>./tests/config.php</exclude-pattern>
 
     <rule ref="PSR2" />
+    <rule ref="Squiz.Strings.ConcatenationSpacing" />
+    <rule ref="Generic.NamingConventions.CamelCapsFunctionName" />
 
 </ruleset>

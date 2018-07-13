@@ -72,7 +72,11 @@ class PhotosApi extends ApiMethodGroup
         $out = [];
         $photoIdsString = join(',', $photoIds);
         $sets = $this->flickr->photosets()->getList(
-            $userId, null, null, null, $photoIdsString
+            $userId,
+            null,
+            null,
+            null,
+            $photoIdsString
         );
         if (!isset($sets['photoset'])) {
             return false;
