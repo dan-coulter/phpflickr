@@ -18,6 +18,7 @@ Table of contents:
 * [Authentication](#authentication)
 * [Making authenticated requests](#making-authenticated-requests)
 * [Caching](#caching)
+* [Uploading](#uploading)
 * [Kudos](#kudos)
 
 ## Installation
@@ -192,68 +193,47 @@ This can be changed with the `PhpFlickr::setCacheDefaultExpiry()`.
 
 ## Uploading
 
-Uploading is pretty simple. Aside from being authenticated (see Authentication 
-section) the very minimum that you'll have to pass is a path to an image file on 
-your php server. You can do either synchronous or asynchronous uploading as follows:
+### Uploading new photos
 
-    synchronous:    sync_upload("photo.jpg");
-    asynchronous:   async_upload("photo.jpg");
-    
-The basic difference is that synchronous uploading waits around until Flickr
-processes the photo and returns a PhotoID.  Asynchronous just uploads the
-picture and gets a "ticketid" that you can use to check on the status of your 
-upload. Asynchronous is much faster, though the photoid won't be instantly
-available for you. You can read more about asynchronous uploading here:
+Uploading is pretty simple. Aside from being authenticated
+(see the [Authentication](#Authentication) section above)
+the very minimum that you'll have to pass is a path to an image file.
+You can upload a file as follows:
 
-    http://www.flickr.com/services/api/upload.async.html
-        
-Both of the functions take the same arguments which are:
+```php
+$flickr->uploader()->upload('/path/to/photo.jpg');
+```
 
-> Photo: The path of the file to upload.  
-> Title: The title of the photo.  
-> Description: A description of the photo. May contain some limited HTML.  
-> Tags: A space-separated list of tags to apply to the photo.  
-> is_public: Set to 0 for no, 1 for yes.  
-> is_friend: Set to 0 for no, 1 for yes.  
-> is_family: Set to 0 for no, 1 for yes.
+The other upload parameters are documented in the method's docblock.
+One useful one is the `$async` flag, which permits *asyncronous* uploading,
+which means that, rather than uploading the file immediately and before returning,
+a 'ticket ID' is returned, with which you can subsequently fetch the upload's status.
+You can read more about asynchronous uploading
+in [Flickr's API documentation](https://www.flickr.com/services/api/upload.async.html).
 
-## Replacing Photos
+### Replacing existing photos
 
-Flickr has released API support for uploading a replacement photo.  To use this
-new method, just use the "replace" function in phpFlickr.  You'll be required
-to pass the file name and Flickr's photo ID.  You need to authenticate your script
-with "write" permissions before you can replace a photo.  The arguments are:
+You can also upload a photo as a replacement to an existing photo.
 
-> Photo: The path of the file to upload.  
-> Photo ID: The numeric Flickr ID of the photo you want to replace.  
-> Async (optional): Set to 0 for a synchronous call, 1 for asynchronous.  
-    
-If you use the asynchronous call, it will return a ticketid instead
-of photoid.
+```php
+$flickr->uploader()->replace('/path/to/photo.jpg', 44333812150);
+```
 
-Other Notes:
-1.  Many of the methods have optional arguments.  For these, I have implemented 
-    them in the same order that the Flickr API documentation lists them. PHP
-    allows for optional arguments in function calls, but if you want to use the
-    third optional argument, you have to fill in the others to the left first.
-    You can use the "NULL" value (without quotes) in the place of an actual
-    argument.  For example:
-    
-        $f->groups_pools_getPhotos($group_id, NULL, NULL, 10);
+This method doesn't allow for setting any photo metadata,
+but you can do the replacement asynchronously
+(in which case a 'ticket ID' will be returned).
 
-    This will get the first ten photos from a specific group's pool.  If you look
-    at the documentation, you will see that there is another argument, "page". I've
-    left it off because it appears after "per_page".
+## Proxy server
 
-2.  Some people will need to ues phpFlickr from behind a proxy server.  I've
-    implemented a method that will allow you to use an HTTP proxy for all of your
-    traffic.  Let's say that you have a proxy server on your local server running
-    at port 8181.  This is the code you would use:
+Some people will need to ues phpFlickr from behind a proxy server.  I've
+implemented a method that will allow you to use an HTTP proxy for all of your
+traffic.  Let's say that you have a proxy server on your local server running
+at port 8181.  This is the code you would use:
 
-        $f = new phpFlickr("[api key]");
-        $f->setProxy("localhost", "8181");
+    $f = new phpFlickr("[api key]");
+    $f->setProxy("localhost", "8181");
 
-    After that, all of your calls will be automatically made through your proxy server.
+After that, all of your calls will be automatically made through your proxy server.
  
 ## Kudos
 
@@ -262,3 +242,7 @@ library, maintained by Sam Wilson. All the hard work was done by Dan!
 
 Thanks also is greatly due to the many other
 [contributors](https://github.com/samwilson/phpflickr/graphs/contributors).
+
+The [Agateware_Example.JPG](https://commons.wikimedia.org/wiki/File:Agateware_Example.JPG)
+used for the upload examples is [CC-BY-SA](https://creativecommons.org/licenses/by-sa/4.0)
+by User:Anonymouse512, via Wikimedia Commons.
