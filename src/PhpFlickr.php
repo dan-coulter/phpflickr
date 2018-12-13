@@ -34,14 +34,13 @@ use OAuth\OAuth1\Token\StdOAuth1Token;
 use OAuth\OAuth2\Token\TokenInterface;
 use OAuth\ServiceFactory;
 use Psr\Cache\CacheItemPoolInterface;
+use Samwilson\PhpFlickr\Oauth\PhpFlickrService;
 
 class PhpFlickr
 {
     protected $api_key;
     protected $secret;
     protected $rest_endpoint = 'https://api.flickr.com/services/rest/';
-    protected $upload_endpoint = 'https://up.flickr.com/services/upload/';
-    protected $replace_endpoint = 'https://up.flickr.com/services/replace/';
     protected $req;
     protected $response;
 
@@ -72,7 +71,7 @@ class PhpFlickr
     /** @var string The Flickr-API service to connect to; must be either 'flickr' or '23'. */
     protected $service;
 
-    /** @var Flickr */
+    /** @var PhpFlickrService */
     protected $oauthService;
 
     /** @var TokenInterface */
@@ -451,194 +450,69 @@ class PhpFlickr
         return $url;
     }
 
-    public function sync_upload($photo, $title = null, $description = null, $tags = null, $is_public = null, $is_friend = null, $is_family = null)
+    /**
+     * Get an uploader with which to upload photos to (or replace photos on) Flickr.
+     * @return Uploader
+     */
+    public function uploader()
     {
-        if (function_exists('curl_init')) {
-            // Has curl. Use it!
-
-            //Process arguments, including method and login data.
-            $args = array("api_key" => $this->api_key, "title" => $title, "description" => $description, "tags" => $tags, "is_public" => $is_public, "is_friend" => $is_friend, "is_family" => $is_family);
-            if (!empty($this->token)) {
-                $args = array_merge($args, array("auth_token" => $this->token));
-            } elseif (!empty($_SESSION['phpFlickr_auth_token'])) {
-                $args = array_merge($args, array("auth_token" => $_SESSION['phpFlickr_auth_token']));
-            }
-
-            ksort($args);
-            $auth_sig = "";
-            foreach ($args as $key => $data) {
-                if (is_null($data)) {
-                    unset($args[$key]);
-                } else {
-                    $auth_sig .= $key . $data;
-                }
-            }
-            if (!empty($this->secret)) {
-                $api_sig = md5($this->secret . $auth_sig);
-                $args["api_sig"] = $api_sig;
-            }
-
-            $photo = realpath($photo);
-            $args['photo'] = '@' . $photo;
-
-
-            $curl = curl_init($this->upload_endpoint);
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $args);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            $response = curl_exec($curl);
-            $this->response = $response;
-            curl_close($curl);
-
-            $rsp = explode("\n", $response);
-            foreach ($rsp as $line) {
-                if (preg_match('|<err code="([0-9]+)" msg="(.*)"|', $line, $match)) {
-                    if ($this->die_on_error) {
-                        throw new Excetion("The Flickr API returned the following error: #{$match[1]} - {$match[2]}");
-                    } else {
-                        $this->error_code = $match[1];
-                        $this->error_msg = $match[2];
-                        $this->parsed_response = false;
-                        return false;
-                    }
-                } elseif (preg_match("|<photoid>(.*)</photoid>|", $line, $match)) {
-                    $this->error_code = false;
-                    $this->error_msg = false;
-                    return $match[1];
-                }
-            }
-        } else {
-            throw new Exception("Sorry, your server must support CURL in order to upload files");
-        }
+        return new Uploader($this);
     }
 
-    public function async_upload($photo, $title = null, $description = null, $tags = null, $is_public = null, $is_friend = null, $is_family = null)
-    {
-        if (function_exists('curl_init')) {
-            // Has curl. Use it!
-
-            //Process arguments, including method and login data.
-            $args = array("async" => 1, "api_key" => $this->api_key, "title" => $title, "description" => $description, "tags" => $tags, "is_public" => $is_public, "is_friend" => $is_friend, "is_family" => $is_family);
-            if (!empty($this->token)) {
-                $args = array_merge($args, array("auth_token" => $this->token));
-            } elseif (!empty($_SESSION['phpFlickr_auth_token'])) {
-                $args = array_merge($args, array("auth_token" => $_SESSION['phpFlickr_auth_token']));
-            }
-
-            ksort($args);
-            $auth_sig = "";
-            foreach ($args as $key => $data) {
-                if (is_null($data)) {
-                    unset($args[$key]);
-                } else {
-                    $auth_sig .= $key . $data;
-                }
-            }
-            if (!empty($this->secret)) {
-                $api_sig = md5($this->secret . $auth_sig);
-                $args["api_sig"] = $api_sig;
-            }
-
-            $photo = realpath($photo);
-            $args['photo'] = '@' . $photo;
-
-
-            $curl = curl_init($this->upload_endpoint);
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $args);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            $response = curl_exec($curl);
-            $this->response = $response;
-            curl_close($curl);
-
-            $rsp = explode("\n", $response);
-            foreach ($rsp as $line) {
-                if (preg_match('/<err code="([0-9]+)" msg="(.*)"/', $line, $match)) {
-                    if ($this->die_on_error) {
-                        throw new Exception("The Flickr API returned the following error: #{$match[1]} - {$match[2]}");
-                    } else {
-                        $this->error_code = $match[1];
-                        $this->error_msg = $match[2];
-                        $this->parsed_response = false;
-                        return false;
-                    }
-                } elseif (preg_match("/<ticketid>(.*)</", $line, $match)) {
-                    $this->error_code = false;
-                    $this->error_msg = false;
-                    return $match[1];
-                }
-            }
-        } else {
-            throw new Exception("Sorry, your server must support CURL in order to upload files");
-        }
+    /**
+     * @deprecated use $this->uploader()->synchronous() instead.
+     */
+    public function sync_upload(
+        $photo,
+        $title = null,
+        $description = null,
+        $tags = null,
+        $is_public = null,
+        $is_friend = null,
+        $is_family = null
+    ) {
+        return $this->uploader()->upload(
+            $photo,
+            $title,
+            $description,
+            $tags,
+            $is_public,
+            $is_friend,
+            $is_family
+        );
     }
 
-    // Interface for new replace API method.
-    public function replace($photo, $photo_id, $async = null)
-    {
-        if (function_exists('curl_init')) {
-            // Has curl. Use it!
+    /**
+     * @deprecated use $this->uploader()->asynchronous() instead.
+     */
+    public function async_upload(
+        $photo,
+        $title = null,
+        $description = null,
+        $tags = null,
+        $is_public = null,
+        $is_friend = null,
+        $is_family = null
+    ) {
+        return $this->uploader()->upload(
+            $photo,
+            $title,
+            $description,
+            $tags,
+            $is_public,
+            $is_friend,
+            $is_family,
+            null,
+            null,
+            true
+        );
+    }
 
-            //Process arguments, including method and login data.
-            $args = array("api_key" => $this->api_key, "photo_id" => $photo_id, "async" => $async);
-            if (!empty($this->token)) {
-                $args = array_merge($args, array("auth_token" => $this->token));
-            } elseif (!empty($_SESSION['phpFlickr_auth_token'])) {
-                $args = array_merge($args, array("auth_token" => $_SESSION['phpFlickr_auth_token']));
-            }
-
-            ksort($args);
-            $auth_sig = "";
-            foreach ($args as $key => $data) {
-                if (is_null($data)) {
-                    unset($args[$key]);
-                } else {
-                    $auth_sig .= $key . $data;
-                }
-            }
-            if (!empty($this->secret)) {
-                $api_sig = md5($this->secret . $auth_sig);
-                $args["api_sig"] = $api_sig;
-            }
-
-            $photo = realpath($photo);
-            $args['photo'] = '@' . $photo;
-
-
-            $curl = curl_init($this->replace_endpoint);
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $args);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            $response = curl_exec($curl);
-            $this->response = $response;
-            curl_close($curl);
-
-            if ($async == 1) {
-                $find = 'ticketid';
-            } else {
-                $find = 'photoid';
-            }
-
-            $rsp = explode("\n", $response);
-            foreach ($rsp as $line) {
-                if (preg_match('|<err code="([0-9]+)" msg="(.*)"|', $line, $match)) {
-                    if ($this->die_on_error) {
-                        throw new Exception("The Flickr API returned the following error: #{$match[1]} - {$match[2]}");
-                    } else {
-                        $this->error_code = $match[1];
-                        $this->error_msg = $match[2];
-                        $this->parsed_response = false;
-                        return false;
-                    }
-                } elseif (preg_match("|<" . $find . ">(.*)</|", $line, $match)) {
-                    $this->error_code = false;
-                    $this->error_msg = false;
-                    return $match[1];
-                }
-            }
-        } else {
-            throw new Exception("Sorry, your server must support CURL in order to upload files");
-        }
+    /**
+     * @deprecated use $this->uploader()->replace() instead.
+     */
+    public function replace($photo, $photo_id, $async = null) {
+        return $this->uploader()->replace($photo, $photo_id, $async);
     }
 
     public function auth($perms = "read", $remember_uri = true)
@@ -687,21 +561,23 @@ class PhpFlickr
     }
 
     /**
-     * @param string $callbackUrl The URL to return to when authenticating with Flickr. Only 
+     * @param string $callbackUrl The URL to return to when authenticating with Flickr. Only
      * required if you're going to be retrieving an access token.
-     * @return Flickr
+     * @return PhpFlickrService
      */
-    protected function getOauthService($callbackUrl = 'oob')
+    public function getOauthService($callbackUrl = 'oob')
     {
         if ($this->oauthService instanceof Flickr) {
             return $this->oauthService;
         }
         $credentials = new Credentials($this->api_key, $this->secret, $callbackUrl);
         $factory = new ServiceFactory();
+        // Replace the Flickr service with our own (of the same name).
+        $factory->registerService('Flickr', PhpFlickrService::class);
         $factory->setHttpClient(new CurlClient());
         $storage = $this->getOauthTokenStorage();
-        /** @var Flickr $flickrService */
-        $this->oauthService = $factory->createService('Flickr', $credentials, $storage );
+        /** @var PhpFlickrService $flickrService */
+        $this->oauthService = $factory->createService('Flickr', $credentials, $storage);
         return $this->oauthService;
     }
 

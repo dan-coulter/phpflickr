@@ -28,7 +28,7 @@ if (isset($_SERVER['SERVER_NAME'])) {
 
     if (!isset($_GET['oauth_token'])) {
         $callbackHere = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-        $url = $flickr->getAuthUrl('read', $callbackHere);
+        $url = $flickr->getAuthUrl('write', $callbackHere);
         echo "<a href='$url'>$url</a>";
     }
 
@@ -42,7 +42,7 @@ if (isset($_SERVER['SERVER_NAME'])) {
     $storage = new \OAuth\Common\Storage\Memory();
     $flickr->setOauthStorage($storage);
 
-    $url = $flickr->getAuthUrl('read');
+    $url = $flickr->getAuthUrl('write');
     echo "Go to $url\nEnter access code: ";
     $code = fgets(STDIN);
     $verifier = preg_replace('/[^0-9]/', '', $code);
