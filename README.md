@@ -37,7 +37,7 @@ require_once 'vendor/autoload.php';
 $flickr = new \Samwilson\PhpFlickr\PhpFlickr($apiKey, $apiSecret);
 ```
 
-The constructor takes three arguments:
+The constructor takes two arguments:
 
 1. `$api_key` — This is the API key given to you by Flickr
    when you [register an app](https://www.flickr.com/services/api/keys/).
@@ -45,13 +45,6 @@ The constructor takes three arguments:
 2. `$secret` — The API secret is optional because it is only required to
    make authenticated requests ([see below](#making-authenticated-requests)).
    It is given to you along with your API key when you register an app.
-
-3. `$die_on_error` - This takes a boolean value and determines 
-   whether the class will die (aka cease operation) if the API 
-   returns an error statement.  It defaults to false.  Every method 
-   will return false if the API returns an error.  You can access 
-   error messages using the getErrorCode() and getErrorMsg() 
-   methods.
 
 All of the API methods have been implemented in phpFlickr.  You can 
 see a full list and documentation here: 
@@ -234,7 +227,10 @@ at port 8181.  This is the code you would use:
     $f->setProxy("localhost", "8181");
 
 After that, all of your calls will be automatically made through your proxy server.
- 
+
+This can also be used to target services that mimic Flickr's API,
+such as [23 Photo Sharing](http://www.23hq.com).
+
 ## Kudos
 
 This is a fork of Dan Coulter's original [phpFlickr](https://github.com/dan-coulter/phpflickr)
