@@ -59,9 +59,6 @@ class PhpFlickr
     protected $cache_dir = null;
     protected $cache_expire = null;
 
-    protected $die_on_error;
-    protected $error_code;
-    protected $error_msg;
     protected $token;
 
     protected $custom_post = null;
@@ -93,14 +90,16 @@ class PhpFlickr
      */
     protected $max_cache_rows = 1000;
 
+    /**
+     * PhpFlickr constructor.
+     * @param $api_key
+     * @param null $secret
+     * @param bool $die_on_error Deprecated, does nothing.
+     */
     public function __construct($api_key, $secret = null, $die_on_error = false)
     {
-        //The API Key must be set before any calls can be made.  You can
-        //get your own at https://www.flickr.com/services/api/misc.api_keys.html
         $this->api_key = $api_key;
         $this->secret = $secret;
-        $this->die_on_error = $die_on_error;
-        $this->service = "flickr";
     }
 
     /**
@@ -352,19 +351,7 @@ class PhpFlickr
         $jsonResponse = json_decode($this->response, true);
         $this->parsed_response = $this->clean_text_nodes($jsonResponse);
         if ($this->parsed_response['stat'] === 'fail') {
-            if ($this->die_on_error) {
-                 throw new FlickrException(
-                     $this->parsed_response['message'],
-                     $this->parsed_response['code']
-                 );
-            } else {
-                $this->error_code = $this->parsed_response['code'];
-                $this->error_msg = $this->parsed_response['message'];
-                $this->parsed_response = false;
-            }
-        } else {
-            $this->error_code = false;
-            $this->error_msg = false;
+             throw new FlickrException($this->parsed_response['message'], $this->parsed_response['code']);
         }
         return $this->parsed_response;
     }
@@ -397,18 +384,22 @@ class PhpFlickr
         $this->req->setProxy($server, $port);
     }
 
+    /**
+     * @deprecated Requests throw exceptions now.
+     * @return int|bool
+     */
     public function getErrorCode()
     {
-        // Returns the error code of the last call.  If the last call did not
-        // return an error. This will return a false boolean.
-        return $this->error_code;
+        return false;
     }
 
+    /**
+     * @deprecated Requests throw exceptions now.
+     * @return string|bool
+     */
     public function getErrorMsg()
     {
-        // Returns the error message of the last call.  If the last call did not
-        // return an error. This will return a false boolean.
-        return $this->error_msg;
+        return false;
     }
 
     /* These functions are front ends for the flickr calls */
@@ -515,37 +506,18 @@ class PhpFlickr
         return $this->uploader()->replace($photo, $photo_id, $async);
     }
 
+    /**
+     * @deprecated Use PhpFlickr::getAuthUrl() instead, and do your own redirecting.
+     * @param string $perms
+     * @param bool $remember_uri
+     * @return mixed
+     */
     public function auth($perms = "read", $remember_uri = true)
     {
-        // Redirects to Flickr's authentication piece if there is no valid token.
-        // If remember_uri is set to false, the callback script (included) will
-        // redirect to its default page.
-
-        if (empty($_SESSION['phpFlickr_auth_token']) && empty($this->token)) {
-            if ($remember_uri === true) {
-                $_SESSION['phpFlickr_auth_redirect'] = $_SERVER['REQUEST_URI'];
-            } elseif ($remember_uri !== false) {
-                $_SESSION['phpFlickr_auth_redirect'] = $remember_uri;
-            }
-            $api_sig = md5($this->secret . "api_key" . $this->api_key . "perms" . $perms);
-
-            if ($this->service == "23") {
-                header("Location: http://www.23hq.com/services/auth/?api_key=" . $this->api_key . "&perms=" . $perms . "&api_sig=". $api_sig);
-            } else {
-                header("Location: https://www.flickr.com/services/auth/?api_key=" . $this->api_key . "&perms=" . $perms . "&api_sig=". $api_sig);
-            }
-            exit;
-        } else {
-            $tmp = $this->die_on_error;
-            $this->die_on_error = false;
-            $rsp = $this->auth_checkToken();
-            if ($this->error_code !== false) {
-                unset($_SESSION['phpFlickr_auth_token']);
-                $this->auth($perms, $remember_uri);
-            }
-            $this->die_on_error = $tmp;
-            return $rsp['perms'];
-        }
+        // Do basic redirection. This method used to also check the session and request token.
+        $url = $this->getAuthUrl($perms);
+        header("Location: $url");
+        exit();
     }
 
     /**

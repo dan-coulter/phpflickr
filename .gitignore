@@ -4,4 +4,5 @@
 /examples/.env
 /examples/config.php
 /examples/cache/
+/tests/config.php
 
