@@ -5,10 +5,9 @@ A PHP wrapper for the Flickr API.
 
 https://github.com/samwilson/phpflickr
 
-[![Packagist](https://img.shields.io/packagist/v/samwilson/phpflickr.svg?style=flat-square)](https://packagist.org/packages/samwilson/phpflickr)
+[![Packagist](https://img.shields.io/packagist/v/samwilson/phpflickr.svg)](https://packagist.org/packages/samwilson/phpflickr)
 
-[![Build Status](https://scrutinizer-ci.com/g/samwilson/phpflickr/badges/build.png?b=master)](https://scrutinizer-ci.com/g/samwilson/phpflickr/build-status/master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/samwilson/phpflickr/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/samwilson/phpflickr/?branch=master)
+[![Build Status](https://travis-ci.com/samwilson/phpflickr.svg?branch=master)](https://travis-ci.com/samwilson/phpflickr)
 
 Table of contents:
 
@@ -39,7 +38,7 @@ $flickr = new \Samwilson\PhpFlickr\PhpFlickr($apiKey, $apiSecret);
 
 The constructor takes two arguments:
 
-1. `$api_key` — This is the API key given to you by Flickr
+1. `$apiKey` — This is the API key given to you by Flickr
    when you [register an app](https://www.flickr.com/services/api/keys/).
 
 2. `$secret` — The API secret is optional because it is only required to

@@ -92,13 +92,13 @@ class PhpFlickr
 
     /**
      * PhpFlickr constructor.
-     * @param $api_key
+     * @param $apiKey
      * @param null $secret
-     * @param bool $die_on_error Deprecated, does nothing.
+     * @param bool $dieOnError Deprecated, does nothing.
      */
-    public function __construct($api_key, $secret = null, $die_on_error = false)
+    public function __construct($apiKey, $secret = null, $dieOnError = false)
     {
-        $this->api_key = $api_key;
+        $this->api_key = $apiKey;
         $this->secret = $secret;
     }
 
