@@ -2,7 +2,6 @@
 
 namespace Samwilson\PhpFlickr\Tests;
 
-use PHPUnit\Framework\TestCase;
 use Samwilson\PhpFlickr\Util;
 
 class UtilTest extends TestCase

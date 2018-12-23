@@ -45,6 +45,33 @@ class PhotosApi extends ApiMethodGroup
     const SIZE_ORIGINAL = 'o';
 
     /**
+     * Add tags to a photo.
+     * @link https://www.flickr.com/services/api/flickr.photos.addTags.html
+     * @param string $photoId The photo to add tags to.
+     * @param string|string[] $tags A space-separated string of tags (double-quoted, where
+     * a tag contains a space), or an array of strings (no quoting necessary). Any double quotes
+     * within tag names will be removed.
+     * @return bool True if no error occured.
+     */
+    public function addTags($photoId, $tags)
+    {
+        $tagString = $tags;
+        if (is_array($tags)) {
+            $quotedTags = array_map(function ($tag) {
+                // It's not possible to have double quotes in a tag.
+                $cleanTag = str_replace('"', '', $tag);
+                // Wrap any tag with spaces in it inside double quotes.
+                return strpos($cleanTag, ' ') ? '"'.$cleanTag.'"' : $cleanTag;
+            }, $tags);
+            $tagString = implode(' ', $quotedTags);
+        }
+        return (bool)$this->flickr->request('flickr.photos.addTags', [
+            'photo_id' => $photoId,
+            'tags' => $tagString,
+        ], true);
+    }
+
+    /**
      * Get information about a photo. The calling user must have permission to view the photo.
      * @link https://www.flickr.com/services/api/flickr.photos.getInfo.html
      * @param string $photoId The ID of the photo to get information for.
