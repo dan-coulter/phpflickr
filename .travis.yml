@@ -11,5 +11,5 @@ install:
 script:
   - composer validate
   - ./vendor/bin/minus-x check . -q
-  - ./vendor/bin/phpunit
+  - ./vendor/bin/phpunit --exclude-group auth
   - git status | grep "nothing to commit, working tree clean"

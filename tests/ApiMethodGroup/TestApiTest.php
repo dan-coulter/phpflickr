@@ -2,9 +2,9 @@
 
 namespace Samwilson\PhpFlickr\Tests\ApiMethodGroup;
 
-use PHPUnit\Framework\TestCase;
 use Samwilson\PhpFlickr\FlickrException;
 use Samwilson\PhpFlickr\PhpFlickr;
+use Samwilson\PhpFlickr\Tests\TestCase;
 
 class TestApiTest extends TestCase
 {
@@ -26,8 +26,7 @@ class TestApiTest extends TestCase
      */
     public function testEcho()
     {
-        require dirname(__DIR__).'/config.php';
-        $flickr = new PhpFlickr($apiKey, $apiSecret);
+        $flickr = $this->getFlickr();
         $echo = $flickr->test()->testEcho(['foo' => 'bar']);
         static::assertArraySubset(['foo' => 'bar', 'method' => 'flickr.test.echo'], $echo);
     }

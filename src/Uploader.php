@@ -3,6 +3,9 @@
 namespace Samwilson\PhpFlickr;
 
 use CURLFile;
+use OAuth\Common\Exception\Exception as OauthException;
+use OAuth\Common\Exception\Exception;
+use SimpleXMLElement;
 
 class Uploader
 {
@@ -88,9 +91,10 @@ class Uploader
     }
 
     /**
-     * @param $filename
-     * @param $params
+     * @param string $filename
+     * @param array $params
      * @return array
+     * @throws Exception If an OAuth error occurs.
      * @throws FlickrException If the file can't be read.
      */
     protected function sendFile($filename, $params)
@@ -111,6 +115,12 @@ class Uploader
         $response = curl_exec($curl);
         $this->response = $response;
         curl_close($curl);
+
+        // Some OAuth errors are not in an XML format, but instead look
+        // like e.g. oauth_problem=token_rejected
+        if (1 === preg_match('/oauth_problem=(.*)/', $response, $matches)) {
+            throw new OauthException($matches[1]);
+        }
 
         // Process result.
         $xml = simplexml_load_string($response);

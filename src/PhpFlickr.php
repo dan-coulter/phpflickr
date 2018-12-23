@@ -1069,12 +1069,16 @@ class PhpFlickr
         return new PhotosApi($this);
     }
 
-    /* Photos Methods */
-    public function photos_addTags($photo_id, $tags)
+    /**
+     * @deprecated Use $this->photos()->addTags() instead.
+     * @param string $photoId
+     * @param string|string[] $tags
+     * @return bool
+     * @throws FlickrException
+     */
+    public function photos_addTags($photoId, $tags)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.addTags.html */
-        $this->request("flickr.photos.addTags", array("photo_id"=>$photo_id, "tags"=>$tags), true);
-        return $this->parsed_response ? true : false;
+        return $this->photos()->addTags($photoId, $tags);
     }
 
     public function photos_delete($photo_id)
