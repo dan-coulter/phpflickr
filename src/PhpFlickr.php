@@ -1550,10 +1550,12 @@ class PhpFlickr
         return $this->photosets()->getList($user_id, $page, $per_page, $primary_photo_extras);
     }
 
+    /**
+     * @deprecated
+     */
     public function photosets_getPhotos($photoset_id, $extras = null, $privacy_filter = null, $per_page = null, $page = null, $media = null)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.getPhotos.html */
-        return $this->call('flickr.photosets.getPhotos', array('photoset_id' => $photoset_id, 'extras' => $extras, 'privacy_filter' => $privacy_filter, 'per_page' => $per_page, 'page' => $page, 'media' => $media));
+        return $this->photosets()->getPhotos($photoset_id, null, $extras, $per_page, $page, $privacy_filter, $media);
     }
 
     public function photosets_orderSets($photoset_ids)
