@@ -71,6 +71,15 @@ class PhotosApi extends ApiMethodGroup
         ], true);
     }
 
+    //flickr.photos.delete
+    //flickr.photos.getAllContexts
+    //flickr.photos.getContactsPhotos
+    //flickr.photos.getContactsPublicPhotos
+    //flickr.photos.getContext
+    //flickr.photos.getCounts
+    //flickr.photos.getExif
+    //flickr.photos.getFavorites
+
     /**
      * Get information about a photo. The calling user must have permission to view the photo.
      * @link https://www.flickr.com/services/api/flickr.photos.getInfo.html
@@ -86,6 +95,11 @@ class PhotosApi extends ApiMethodGroup
         $response = $this->flickr->request('flickr.photos.getInfo', $params);
         return isset($response['photo']) ? $response['photo'] : false;
     }
+
+    //flickr.photos.getInfo
+    //flickr.photos.getNotInSet
+    //flickr.photos.getPerms
+    //flickr.photos.getPopular
 
     /**
      * Get information about the sets to which the given photos belong.
@@ -191,4 +205,18 @@ class PhotosApi extends ApiMethodGroup
         $result = $this->flickr->request('flickr.photos.getRecent', $args);
         return isset($result['photos']['photo']) ? $result['photos']['photo'] : false;
     }
+
+    //flickr.photos.getUntagged
+    //flickr.photos.getWithGeoData
+    //flickr.photos.getWithoutGeoData
+    //flickr.photos.recentlyUpdated
+    //flickr.photos.removeTag
+    //flickr.photos.search
+    //flickr.photos.setContentType
+    //flickr.photos.setDates
+    //flickr.photos.setMeta
+    //flickr.photos.setPerms
+    //flickr.photos.setSafetyLevel
+    //flickr.photos.setTags
+
 }

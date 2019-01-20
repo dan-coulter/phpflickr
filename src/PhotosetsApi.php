@@ -171,7 +171,50 @@ class PhotosetsApi extends ApiMethodGroup
         return isset($response['photosets']) ? $response['photosets'] : false;
     }
 
-    //flickr.photosets.getPhotos
+    /**
+     * Get the list of photos in a set.
+     *
+     * @param int $photosetId The photoset ID.
+     * @param string $userId The owner of the photo set.
+     * @param string|string[] $extras Extra information to fetch for each photo. Comma-delimited string or array of
+     * strings. Possible values: license, date_upload, date_taken, owner_name, icon_server, original_format,
+     * last_update, geo, tags, machine_tags, o_dims, views, media, path_alias, url_sq, url_t, url_s, url_m, and url_o.
+     * @param int $perPage The number of results per page. Default and maximum are 500.
+     * @param int $page Which page of results to return.
+     * @param int $privacyFilter Return photos matching one of the following privacy levels:
+     *   1 public photos;
+     *   2 private photos visible to friends;
+     *   3 private photos visible to family;
+     *   4 private photos visible to friends & family;
+     *   5 completely private photos.
+     * @param string $media Filter results by media type. One of 'all', 'photos', or 'videos'.
+     * @return array[]|bool
+     */
+    public function getPhotos(
+        $photosetId,
+        $userId = null,
+        $extras = null,
+        $perPage = null,
+        $page = null,
+        $privacyFilter = null,
+        $media = null
+    ) {
+        if (is_array($extras)) {
+            $extras = join(',', $extras);
+        }
+        $args= [
+            'photoset_id' => $photosetId,
+            'user_id' => $userId,
+            'extras' => $extras,
+            'per_page' => $perPage,
+            'page' => $page,
+            'privacy_filter' => $privacyFilter,
+            'media' => $media,
+        ];
+        $response = $this->flickr->request('flickr.photosets.getPhotos', $args);
+        return isset($response['photoset']) ? $response['photoset'] : false;
+    }
+
     //flickr.photosets.orderSets
     //flickr.photosets.removePhoto
     //flickr.photosets.removePhotos

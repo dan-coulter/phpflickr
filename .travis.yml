@@ -5,11 +5,11 @@ php:
   - '7.2'
 
 install:
-  - echo "<?php \$apiKey = '$FLICKR_API_KEY'; \$apiSecret = '$FLICKR_API_SECRET';" > tests/config.php;
+  - echo "<?php \$apiKey = '$FLICKR_API_KEY'; \$apiSecret = '$FLICKR_API_SECRET'; \$accessToken = '$FLICKR_ACCESS_KEY'; \$accessTokenSecret = '$FLICKR_ACCESS_SECRET';" > tests/config.php;
   - composer install
 
 script:
   - composer validate
   - ./vendor/bin/minus-x check . -q
-  - ./vendor/bin/phpunit --exclude-group auth
+  - ./vendor/bin/phpunit
   - git status | grep "nothing to commit, working tree clean"

@@ -13,7 +13,7 @@ class PhotosApiTest extends TestCase
     public function testAddTags()
     {
         $flickr = $this->getFlickr(true);
-        $testFilename = dirname(__DIR__, 2).'/examples/Agateware_Example.JPG';
+        $testFilename = dirname(__DIR__).'/../examples/Agateware_Example.JPG';
         $photo = $flickr->uploader()->upload($testFilename);
 
         // Add a string of tags.
