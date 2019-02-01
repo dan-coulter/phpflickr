@@ -1232,22 +1232,12 @@ class PhpFlickr
         return $this->parsed_response ? true : false;
     }
 
-    public function photos_search($args = array())
+    /**
+     * @deprecated
+     */
+    public function photos_search($args = [])
     {
-        /* This function strays from the method of arguments that I've
-         * used in the other functions for the fact that there are just
-         * so many arguments to this API method. What you'll need to do
-         * is pass an associative array to the function containing the
-         * arguments you want to pass to the API.  For example:
-         *   $photos = $f->photos_search(array("tags"=>"brown,cow", "tag_mode"=>"any"));
-         * This will return photos tagged with either "brown" or "cow"
-         * or both. See the API documentation (link below) for a full
-         * list of arguments.
-         */
-
-        /* https://www.flickr.com/services/api/flickr.photos.search.html */
-        $this->request("flickr.photos.search", $args);
-        return ($this->parsed_response) ? $this->parsed_response['photos'] : false;
+        return $this->photos()->search();
     }
 
     public function photos_setContentType($photo_id, $content_type)
