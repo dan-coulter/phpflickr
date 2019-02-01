@@ -211,7 +211,21 @@ class PhotosApi extends ApiMethodGroup
     //flickr.photos.getWithoutGeoData
     //flickr.photos.recentlyUpdated
     //flickr.photos.removeTag
-    //flickr.photos.search
+
+    /**
+     * Return a list of photos matching some criteria. Only photos visible to the calling user will be returned. To
+     * return private or semi-private photos, the caller must be authenticated with 'read' permissions, and have
+     * permission to view the photos. Unauthenticated calls will only return public photos.
+     * @link https://www.flickr.com/services/api/flickr.photos.search.html
+     * @param array $args See the Flickr API link above for details of the permitted keys of this array.
+     * @return array|bool
+     */
+    public function search($args)
+    {
+        $result = $this->flickr->request('flickr.photos.search', $args);
+        return isset($result['photos']) ? $result['photos'] : false;
+    }
+
     //flickr.photos.setContentType
     //flickr.photos.setDates
     //flickr.photos.setMeta

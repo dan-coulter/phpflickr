@@ -42,4 +42,16 @@ class PhotosApiTest extends TestCase
             $tags2
         );
     }
+
+    public function testSearch()
+    {
+        $flickr = $this->getFlickr(true);
+        $testFilename = dirname(__DIR__).'/../examples/Agateware_Example.JPG';
+        $flickr->uploader()->upload($testFilename);
+        $search = $flickr->photos()->search([
+            'user_id' => 'me',
+            'text' => 'Agateware_Example',
+        ]);
+        static::assertGreaterThan(1, count($search['photo']));
+    }
 }
