@@ -11,6 +11,10 @@ class Util
     const PRIVACY_FAMILY = 3;
     const PRIVACY_FRIENDS_FAMILY = 4;
     const PRIVACY_PRIVATE = 5;
+    const DATE_GRANULARITY_EXACT = 0;
+    const DATE_GRANULARITY_MONTH = 4;
+    const DATE_GRANULARITY_YEAR = 6;
+    const DATE_GRANULARITY_CIRCA = 8;
 
     /**
      * Encode a photo ID to Flickr's short-URL base-58 system.

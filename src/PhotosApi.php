@@ -2,6 +2,8 @@
 
 namespace Samwilson\PhpFlickr;
 
+use DateTime;
+
 class PhotosApi extends ApiMethodGroup
 {
 
@@ -227,10 +229,76 @@ class PhotosApi extends ApiMethodGroup
     }
 
     //flickr.photos.setContentType
-    //flickr.photos.setDates
-    //flickr.photos.setMeta
+
+    /**
+     * Set one or both of the dates for a photo.
+     * @link https://www.flickr.com/services/api/flickr.photos.setDates.html
+     * $param int $photoId The ID of the photo to edit dates for.
+     * @param DateTime|null $dateTaken The date the photo was taken.
+     * @param int $dateTakenGranularity The granularity of the $dateTaken parameter.
+     * One of the Util::DATE_GRANULARITY_* constants.
+     * @param DateTime|null $datePosted The date the photo was uploaded to Flickr.
+     * @return bool True on success.
+     */
+    public function setDates(
+        $photoId,
+        DateTime $dateTaken = null,
+        $dateTakenGranularity = null,
+        DateTime $datePosted = null
+    ) {
+        $args = ['photo_id' => $photoId];
+        if (!empty($dateTaken)) {
+            $args['date_taken'] = $dateTaken->format('Y-m-d H:i:s');
+        }
+        if (!empty($dateTakenGranularity)) {
+            $args['date_taken_granularity'] = $dateTakenGranularity;
+        }
+        if (!empty($datePosted)) {
+            $args['date_posted'] = $datePosted->format('U');
+        }
+        $result = $this->flickr->request('flickr.photos.setDates', $args, true);
+        return isset($result['stat']) && $result['stat'] === 'ok';
+    }
+
+    /**
+     * Set the main metadata for a photo.
+     * @link https://www.flickr.com/services/api/flickr.photos.setMeta.html
+     * @param int $photoId The ID of the photo to set information for.
+     * @param string $title The title for the photo. At least one of title or description must be set.
+     * @param string $description The description for the photo. At least one of title or description must be set.
+     * @return bool True on success.
+     * @throws FlickrException If neither $title or $description is set.
+     */
+    public function setMeta($photoId, $title = null, $description = null)
+    {
+        if (empty($title) && empty($description)) {
+            throw new FlickrException('$title or $description must be set');
+        }
+        $args = ['photo_id' => $photoId];
+        if (!empty($title)) {
+            $args['title'] = $title;
+        }
+        if (!empty($description)) {
+            $args['description'] = $description;
+        }
+        $result = $this->flickr->request('flickr.photos.setMeta', $args, true);
+        return isset($result['stat']) && $result['stat'] === 'ok';
+    }
+
     //flickr.photos.setPerms
     //flickr.photos.setSafetyLevel
-    //flickr.photos.setTags
 
+    /**
+     * Set all of the tags for a photo, replacing any that are already there.
+     * @link https://www.flickr.com/services/api/flickr.photos.setTags.html
+     * @param int $photoId The photo ID.
+     * @param string $tags All tags for the photo (as a single space-delimited string; tags with spaces in them should
+     * be quoted).
+     * @return bool
+     */
+    public function setTags($photoId, $tags)
+    {
+        $result = $this->flickr->request('flickr.photos.setTags', ['photo_id' => $photoId, 'tags' => $tags], true);
+        return isset($result['stat']) && $result['stat'] === 'ok';
+    }
 }
