@@ -22,6 +22,7 @@
 namespace Samwilson\PhpFlickr;
 
 use DateInterval;
+use DateTime;
 use Exception;
 use OAuth\Common\Consumer\Credentials;
 use OAuth\Common\Http\Client\CurlClient;
@@ -1246,18 +1247,20 @@ class PhpFlickr
         return $this->call('flickr.photos.setContentType', array('photo_id' => $photo_id, 'content_type' => $content_type));
     }
 
+    /**
+     * @deprecated
+     */
     public function photos_setDates($photo_id, $date_posted = null, $date_taken = null, $date_taken_granularity = null)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.setDates.html */
-        $this->request("flickr.photos.setDates", array("photo_id"=>$photo_id, "date_posted"=>$date_posted, "date_taken"=>$date_taken, "date_taken_granularity"=>$date_taken_granularity), true);
-        return $this->parsed_response ? true : false;
+        return $this->photos()->setDates($photo_id, new DateTime($date_taken), $date_taken_granularity, new DateTime($date_posted));
     }
 
+    /**
+     * @deprecated
+     */
     public function photos_setMeta($photo_id, $title, $description)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.setMeta.html */
-        $this->request("flickr.photos.setMeta", array("photo_id"=>$photo_id, "title"=>$title, "description"=>$description), true);
-        return $this->parsed_response ? true : false;
+        return $this->photos()->setMeta($photo_id, $title, $description);
     }
 
     public function photos_setPerms($photo_id, $is_public, $is_friend, $is_family, $perm_comment, $perm_addmeta)
@@ -1275,9 +1278,7 @@ class PhpFlickr
 
     public function photos_setTags($photo_id, $tags)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.setTags.html */
-        $this->request("flickr.photos.setTags", array("photo_id"=>$photo_id, "tags"=>$tags), true);
-        return $this->parsed_response ? true : false;
+
     }
 
     /* Photos - Comments Methods */
