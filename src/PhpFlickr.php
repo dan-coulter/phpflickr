@@ -403,43 +403,12 @@ class PhpFlickr
         return false;
     }
 
-    /* These functions are front ends for the flickr calls */
-
-    public function buildPhotoURL($photo, $size = "Medium")
+    /**
+     * @deprecated
+     */
+    public function buildPhotoURL($photoInfo, $size = "medium")
     {
-        //receives an array (can use the individual photo data returned
-        //from an API call) and returns a URL (doesn't mean that the
-        //file size exists)
-        $sizes = array(
-            "square" => "_s",
-            "square_75" => "_s",
-            "square_150" => "_q",
-            "thumbnail" => "_t",
-            "small" => "_m",
-            "small_240" => "_m",
-            "small_320" => "_n",
-            "medium" => "",
-            "medium_500" => "",
-            "medium_640" => "_z",
-            "medium_800" => "_c",
-            "large" => "_b",
-            "large_1024" => "_b",
-            "large_1600" => "_h",
-            "large_2048" => "_k",
-            "original" => "_o",
-        );
-
-        $size = strtolower($size);
-        if (!array_key_exists($size, $sizes)) {
-            $size = "medium";
-        }
-
-        if ($size == "original") {
-            $url = "https://farm" . $photo['farm'] . ".static.flickr.com/" . $photo['server'] . "/" . $photo['id'] . "_" . $photo['originalsecret'] . "_o" . "." . $photo['originalformat'];
-        } else {
-            $url = "https://farm" . $photo['farm'] . ".static.flickr.com/" . $photo['server'] . "/" . $photo['id'] . "_" . $photo['secret'] . $sizes[$size] . ".jpg";
-        }
-        return $url;
+        return $this->urls()->getImageUrl($photoInfo, $size);
     }
 
     /**
@@ -1925,44 +1894,59 @@ class PhpFlickr
         return $this->test()->login();
     }
 
-    public function urls_getGroup($group_id)
-    {
-        /* https://www.flickr.com/services/api/flickr.urls.getGroup.html */
-        $this->request("flickr.urls.getGroup", array("group_id"=>$group_id));
-        return $this->parsed_response ? $this->parsed_response['group']['url'] : false;
-    }
+	/**
+	 * @return UrlsApi
+	 */
+	public function urls()
+	{
+		return new UrlsApi($this);
+	}
 
-    public function urls_getUserPhotos($user_id = null)
-    {
-        /* https://www.flickr.com/services/api/flickr.urls.getUserPhotos.html */
-        $this->request("flickr.urls.getUserPhotos", array("user_id"=>$user_id));
-        return $this->parsed_response ? $this->parsed_response['user']['url'] : false;
-    }
+	/**
+	 * @deprecated
+	 */
+	public function urls_getGroup($group_id)
+	{
+		return $this->urls()->getGroup($group_id);
+	}
 
-    public function urls_getUserProfile($user_id = null)
-    {
-        /* https://www.flickr.com/services/api/flickr.urls.getUserProfile.html */
-        $this->request("flickr.urls.getUserProfile", array("user_id"=>$user_id));
-        return $this->parsed_response ? $this->parsed_response['user']['url'] : false;
-    }
+	/**
+	 * @deprecated
+	 */
+	public function urls_getUserPhotos($user_id = null)
+	{
+		return $this->urls()->getUserPhotos($user_id);
+	}
 
-    public function urls_lookupGallery($url)
-    {
-        /* https://www.flickr.com/services/api/flickr.urls.lookupGallery.html */
-        return $this->call('flickr.urls.lookupGallery', array('url' => $url));
-    }
+	/**
+	 * @deprecated
+	 */
+	public function urls_getUserProfile($user_id = null)
+	{
+		return $this->urls()->getUserProfile($user_id);
+	}
 
-    public function urls_lookupGroup($url)
-    {
-        /* https://www.flickr.com/services/api/flickr.urls.lookupGroup.html */
-        $this->request("flickr.urls.lookupGroup", array("url"=>$url));
-        return $this->parsed_response ? $this->parsed_response['group'] : false;
-    }
+	/**
+	 * @deprecated
+	 */
+	public function urls_lookupGallery($url)
+	{
+		return $this->urls()->lookupGallery($url);
+	}
 
-    public function urls_lookupUser($url)
-    {
-        /* https://www.flickr.com/services/api/flickr.photos.notes.edit.html */
-        $this->request("flickr.urls.lookupUser", array("url"=>$url));
-        return $this->parsed_response ? $this->parsed_response['user'] : false;
-    }
+	/**
+	 * @deprecated
+	 */
+	public function urls_lookupGroup($url)
+	{
+		return $this->urls()->lookupGroup($url);
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public function urls_lookupUser($url)
+	{
+		return $this->urls()->lookupUser($url);
+	}
 }
