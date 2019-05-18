@@ -26,6 +26,7 @@
 		"squizlabs/php_codesniffer": "^3.0",
 		"mediawiki/minus-x": "^0.3",
 		"phpunit/phpunit": "^5.0",
-		"tedivm/stash": "^0.14"
+		"tedivm/stash": "^0.14",
+		"symfony/var-dumper": "^4.2"
 	}
 }
