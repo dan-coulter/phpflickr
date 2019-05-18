@@ -350,14 +350,17 @@ class PhpFlickr
         }
 
         $jsonResponse = json_decode($this->response, true);
-        $this->parsed_response = $this->clean_text_nodes($jsonResponse);
+        if (null === $jsonResponse) {
+            throw new FlickrException("Unable to decode Flickr response to $command request: ".$this->response);
+        }
+        $this->parsed_response = $this->cleanTextNodes($jsonResponse);
         if ($this->parsed_response['stat'] === 'fail') {
              throw new FlickrException($this->parsed_response['message'], $this->parsed_response['code']);
         }
         return $this->parsed_response;
     }
 
-    public function clean_text_nodes($arr)
+    public function cleanTextNodes($arr)
     {
         if (!is_array($arr)) {
             return $arr;
@@ -367,7 +370,7 @@ class PhpFlickr
             return $arr['_content'];
         } else {
             foreach ($arr as $key => $element) {
-                $arr[$key] = $this->clean_text_nodes($element);
+                $arr[$key] = $this->cleanTextNodes($element);
             }
             return($arr);
         }
