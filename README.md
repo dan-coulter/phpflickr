@@ -17,6 +17,7 @@ Table of contents:
 * [Authentication](#authentication)
 * [Making authenticated requests](#making-authenticated-requests)
 * [Caching](#caching)
+* [Proxy server](#proxy-server)
 * [Uploading](#uploading)
 * [Kudos](#kudos)
 
