@@ -217,18 +217,25 @@ but you can do the replacement asynchronously
 
 ## Proxy server
 
-Some people will need to ues phpFlickr from behind a proxy server.  I've
-implemented a method that will allow you to use an HTTP proxy for all of your
-traffic.  Let's say that you have a proxy server on your local server running
-at port 8181.  This is the code you would use:
+PhpFlickr can be used with a proxy server
+or any service that matches Flickr's API (such as [23 Photo Sharing](http://www.23hq.com)).
+To use this feature, pass the proxy server's base URL after instantiating a PhpFlickr object.
+For example:
 
-    $f = new phpFlickr("[api key]");
-    $f->setProxy("localhost", "8181");
+```php
+$flickr->setProxyBaseUrl('http://localhost:8181/flickr');
+```
 
-After that, all of your calls will be automatically made through your proxy server.
+After that, all requests will be automatically made through your proxy server.
 
-This can also be used to target services that mimic Flickr's API,
-such as [23 Photo Sharing](http://www.23hq.com).
+One example of configuring such a proxy service, for the Apache webserver, is as follows:
+
+```
+ProxyRequests Off
+SSLProxyEngine on
+ProxyPass /flickr https://api.flickr.com/services
+ProxyPassReverse /flickr https://api.flickr.com/services
+```
 
 ## Kudos
 
