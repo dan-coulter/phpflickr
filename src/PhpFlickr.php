@@ -42,6 +42,10 @@ class PhpFlickr
     protected $api_key;
     protected $secret;
     protected $rest_endpoint = 'https://api.flickr.com/services/rest/';
+
+    /** @var string The base URL of a Flickr API proxy service. */
+    protected $proxyBaseUrl;
+
     protected $req;
     protected $response;
 
@@ -156,7 +160,7 @@ class PhpFlickr
                 if ($result) {
                     $result = mysqli_fetch_assoc($result);
                 }
-                    
+
                 if ($result && $result['count'] > $this->max_cache_rows) {
                     mysqli_query($db, "DELETE FROM $table WHERE CURRENT_TIMESTAMP > expiration");
                     mysqli_query($db, 'OPTIMIZE TABLE ' . $this->cache_table);
@@ -233,7 +237,7 @@ class PhpFlickr
     /**
      * Cache a request's response.
      * @param string[] $request API request parameters.
-     * @param mixed $response The value to cache. 
+     * @param mixed $response The value to cache.
      * @return bool|int|mixed|\mysqli_result
      */
     public function cache($request, $response)
@@ -264,7 +268,7 @@ class PhpFlickr
             if (!$result) {
                 echo mysqli_error($this->cache_db);
             }
-                    
+
             return $result;
         } elseif ($this->cache == "fs") {
             $file = $this->cache_dir . "/" . $cacheKey . ".cache";
@@ -382,10 +386,20 @@ class PhpFlickr
         $this->token = $token;
     }
 
+    /**
+     * @deprecated Use $this->>setProxyBaseUrl() instead.
+     */
     public function setProxy($server, $port)
     {
-        // Sets the proxy for all phpFlickr calls.
-        $this->req->setProxy($server, $port);
+    }
+
+    /**
+     * Set a proxy server through which all requests will be made.
+     * @param string $baseUrl The base URL.
+     */
+    public function setProxyBaseUrl($baseUrl)
+    {
+        $this->proxyBaseUrl = rtrim($baseUrl, '/');
     }
 
     /**
@@ -517,7 +531,10 @@ class PhpFlickr
         }
         $credentials = new Credentials($this->api_key, $this->secret, $callbackUrl);
         $factory = new ServiceFactory();
-        // Replace the Flickr service with our own (of the same name).
+        // Replace the Flickr service with our own (of the same name), using the proxy URL if it's set.
+        if ($this->proxyBaseUrl) {
+            PhpFlickrService::setBaseUrl($this->proxyBaseUrl);
+        }
         $factory->registerService('Flickr', PhpFlickrService::class);
         $factory->setHttpClient(new CurlClient());
         $storage = $this->getOauthTokenStorage();
@@ -549,7 +566,7 @@ class PhpFlickr
     }
 
     /**
-     * Get an access token for the current user, that you can store in order to authenticate as 
+     * Get an access token for the current user, that you can store in order to authenticate as
      * for this user in the future.
      *
      * @param string $verifier The verification code.
@@ -599,8 +616,8 @@ class PhpFlickr
     }
 
     /**
-     * Make a call to the Flickr API. This method allows you to call API methods that have not 
-     * yet been implemented in PhpFlickr. You should use other more specific methods of this 
+     * Make a call to the Flickr API. This method allows you to call API methods that have not
+     * yet been implemented in PhpFlickr. You should use other more specific methods of this
      * class if possible.
      * @param string $method The API method name.
      * @param string[] $arguments The API method arguments.
@@ -1110,7 +1127,7 @@ class PhpFlickr
     }
 
     /**
-     * @deprecated Use $this->photos()->getInfo() instead.  
+     * @deprecated Use $this->photos()->getInfo() instead.
      * @param $photo_id
      * @param null $secret
      * @param null $humandates
