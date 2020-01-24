@@ -2,7 +2,8 @@
 
 namespace Samwilson\PhpFlickr;
 
-class PeopleApi extends ApiMethodGroup {
+class PeopleApi extends ApiMethodGroup
+{
 
     /**
      * Return a user's NSID, given their email address
@@ -10,7 +11,8 @@ class PeopleApi extends ApiMethodGroup {
      * @param string $findEmail The email address of the user to find (may be primary or secondary).
      * @return bool
      */
-    public function findByEmail( $findEmail ) {
+    public function findByEmail($findEmail)
+    {
         $response = $this->flickr->request(
             'flickr.people.findByEmail',
             ['find_email' => $findEmail]
@@ -24,7 +26,8 @@ class PeopleApi extends ApiMethodGroup {
      * @param string $username The username of the user to lookup.
      * @return bool
      */
-    public function findByUsername($username) {
+    public function findByUsername($username)
+    {
         $response = $this->flickr->request(
             'flickr.people.findByUsername',
             ['username' => $username]
@@ -32,16 +35,16 @@ class PeopleApi extends ApiMethodGroup {
         return isset($response['user']) ? $response['user'] : false;
     }
 
-    public function getGroups() {
-
+    public function getGroups()
+    {
     }
 
-    public function getInfo() {
-
+    public function getInfo()
+    {
     }
 
-    public function getLimits() {
-
+    public function getLimits()
+    {
     }
 
     /**
@@ -87,9 +90,17 @@ class PeopleApi extends ApiMethodGroup {
      * @return string[]|bool Photo information, or false if none.
      */
     public function getPhotos(
-        $userId = 'me', $safeSearch = null, $minUploadDate = null, $maxUploadDate = null,
-        $minTakenDate = null, $maxTakenDate = null, $contentType = null, $privacyFilter = null,
-        $extras = null, $perPage = 100, $page = 1
+        $userId = 'me',
+        $safeSearch = null,
+        $minUploadDate = null,
+        $maxUploadDate = null,
+        $minTakenDate = null,
+        $maxTakenDate = null,
+        $contentType = null,
+        $privacyFilter = null,
+        $extras = null,
+        $perPage = 100,
+        $page = 1
     ) {
         $params = [
             'user_id' => $userId,
@@ -108,19 +119,19 @@ class PeopleApi extends ApiMethodGroup {
         return isset($photos['photos']) ? $photos['photos'] : false;
     }
 
-    public function getPhotosOf() {
-
+    public function getPhotosOf()
+    {
     }
 
-    public function getPublicGroups() {
-
+    public function getPublicGroups()
+    {
     }
 
-    public function getPublicPhotos() {
-
+    public function getPublicPhotos()
+    {
     }
 
-    public function getUploadStatus() {
-
+    public function getUploadStatus()
+    {
     }
 }

@@ -18,7 +18,7 @@ class PhotosApiTest extends TestCase
         if ($this->testPhotoId) {
             return $this->testPhotoId;
         }
-        $testFilename = dirname(__DIR__) . '/../examples/Agateware_Example.JPG';
+        $testFilename = dirname(__DIR__).'/../examples/Agateware_Example.JPG';
         $photo = $flickr->uploader()->upload($testFilename);
         $this->testPhotoId = $photo['photoid'];
         return $this->testPhotoId;
@@ -30,7 +30,7 @@ class PhotosApiTest extends TestCase
     public function testAddTags()
     {
         $flickr = $this->getFlickr(true);
-        $testFilename = dirname(__DIR__) . '/../examples/Agateware_Example.JPG';
+        $testFilename = dirname(__DIR__).'/../examples/Agateware_Example.JPG';
         $photo = $flickr->uploader()->upload($testFilename);
 
         // Add a string of tags.
@@ -79,7 +79,7 @@ class PhotosApiTest extends TestCase
     public function testSearch()
     {
         $flickr = $this->getFlickr(true);
-        $testFilename = dirname(__DIR__) . '/../examples/Agateware_Example.JPG';
+        $testFilename = dirname(__DIR__).'/../examples/Agateware_Example.JPG';
         $flickr->uploader()->upload($testFilename);
         $search = $flickr->photos()->search([
             'user_id' => 'me',

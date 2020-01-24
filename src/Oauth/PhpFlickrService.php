@@ -15,7 +15,7 @@ class PhpFlickrService extends Flickr
 {
 
     /** @var string The base URL, with no trailing slash. */
-    static private $baseUrl = 'https://api.flickr.com/services';
+    private static $baseUrl = 'https://api.flickr.com/services';
 
     public function __construct(
         CredentialsInterface $credentials,
@@ -25,7 +25,7 @@ class PhpFlickrService extends Flickr
         UriInterface $baseApiUri = null
     ) {
         if ($baseApiUri === null) {
-            $baseApiUri = new Uri( static::$baseUrl.'/rest/' );
+            $baseApiUri = new Uri(static::$baseUrl.'/rest/');
         }
         parent::__construct($credentials, $httpClient, $storage, $signature, $baseApiUri);
     }
