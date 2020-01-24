@@ -9,7 +9,4 @@ install:
   - composer install
 
 script:
-  - composer validate
-  - ./vendor/bin/minus-x check . -q
-  - ./vendor/bin/phpunit
-  - git status | grep "nothing to commit, working tree clean"
+  - composer test

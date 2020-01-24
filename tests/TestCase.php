@@ -25,10 +25,14 @@ abstract class TestCase extends PhpUnitTestCase
         }
 
         require __DIR__.'/config.php';
+        if (empty($apiKey)) {
+            // Skip if no key, so PRs from forks can still be run on Travis.
+            static::markTestSkipped('No Flickr API key set.');
+        }
         $this->flickr = new PhpFlickr($apiKey, $apiSecret);
 
         // Authenticate?
-        if ($authenticate && isset($accessToken) && isset($accessTokenSecret)) {
+        if ($authenticate && !empty($accessToken) && !empty($accessTokenSecret)) {
             $token = new StdOAuth1Token();
             $token->setAccessToken($accessToken);
             $token->setAccessTokenSecret($accessTokenSecret);
