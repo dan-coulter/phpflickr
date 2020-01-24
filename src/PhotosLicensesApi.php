@@ -9,7 +9,7 @@ class PhotosLicensesApi extends ApiMethodGroup
      * Fetches a list of available photo licenses for Flickr.
      * This method does not require authentication.
      * @link https://www.flickr.com/services/api/flickr.photos.licenses.getInfo.html
-     * @return string[][] Each item has 'id', 'name', and 'url' elements, and the top level array 
+     * @return string[][] Each item has 'id', 'name', and 'url' elements, and the top level array
      * keys are also the license IDs.
      */
     public function getInfo()

@@ -29,12 +29,12 @@ class Util
         while ($num >= $base_count) {
             $div = $num/$base_count;
             $mod = ($num-($base_count*intval($div)));
-            $encoded = static::BASE58_ALPHABET[$mod] . $encoded;
+            $encoded = static::BASE58_ALPHABET[$mod].$encoded;
             $num = intval($div);
         }
 
         if ($num) {
-            $encoded = static::BASE58_ALPHABET[$num] . $encoded;
+            $encoded = static::BASE58_ALPHABET[$num].$encoded;
         }
 
         return $encoded;

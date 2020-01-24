@@ -34,6 +34,7 @@
 			"composer validate",
 			"parallel-lint . --exclude node_modules --exclude vendor",
 			"minus-x check . -q",
+			"phpcs -sp",
 			"phpunit",
 			"git status | grep 'nothing to commit, working tree clean'"
 		]

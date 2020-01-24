@@ -9,9 +9,9 @@
  * @file
  */
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
-$configFile = __DIR__ . '/config.php';
+$configFile = __DIR__.'/config.php';
 require_once $configFile;
 if (empty($apiKey) || empty($apiSecret)) {
     echo 'Please set $apiKey and $apiSecret in '.$configFile;
@@ -27,7 +27,7 @@ if (isset($_SERVER['SERVER_NAME'])) {
     $flickr->setOauthStorage($storage);
 
     if (!isset($_GET['oauth_token'])) {
-        $callbackHere = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+        $callbackHere = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
         $url = $flickr->getAuthUrl('delete', $callbackHere);
         echo "<a href='$url'>$url</a>";
     }

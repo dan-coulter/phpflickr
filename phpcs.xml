@@ -10,8 +10,16 @@
     <exclude-pattern>./docs/*</exclude-pattern>
     <exclude-pattern>./tests/config.php</exclude-pattern>
 
+    <!-- Temporary exclusion, until the next non-BC release when these can be deleted. -->
+    <exclude-pattern>./src/Pager.php</exclude-pattern>
+    <exclude-pattern>./src/PhpFlickr.php</exclude-pattern>
+
     <rule ref="PSR2" />
     <rule ref="Squiz.Strings.ConcatenationSpacing" />
     <rule ref="Generic.NamingConventions.CamelCapsFunctionName" />
+
+    <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
+        <exclude-pattern>./examples/*</exclude-pattern>
+    </rule>
 
 </ruleset>
