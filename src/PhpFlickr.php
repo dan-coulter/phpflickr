@@ -1538,39 +1538,44 @@ class PhpFlickr
         return $this->photosets()->getPhotos($photoset_id, null, $extras, $per_page, $page, $privacy_filter, $media);
     }
 
+    /**
+     * @deprecated
+     */
     public function photosets_orderSets($photoset_ids)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.orderSets.html */
-        if (is_array($photoset_ids)) {
-            $photoset_ids = implode(",", $photoset_ids);
-        }
-        $this->request("flickr.photosets.orderSets", array("photoset_ids" => $photoset_ids), true);
-        return $this->parsed_response ? true : false;
+        return $this->photosets()->orderSets($photoset_ids);
     }
 
+    /**
+     * @deprecated
+     */
     public function photosets_removePhoto($photoset_id, $photo_id)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.removePhoto.html */
-        $this->request("flickr.photosets.removePhoto", array("photoset_id" => $photoset_id, "photo_id" => $photo_id), true);
-        return $this->parsed_response ? true : false;
+        return $this->photosets()->removePhoto($photoset_id, $photo_id);
     }
 
+    /**
+     * @deprecated
+     */
     public function photosets_removePhotos($photoset_id, $photo_ids)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.removePhotos.html */
-        return $this->call('flickr.photosets.removePhotos', array('photoset_id' => $photoset_id, 'photo_ids' => $photo_ids));
+        return $this->photosets()->removePhotos($photoset_id, $photo_ids);
     }
 
+    /**
+     * @deprecated
+     */
     public function photosets_reorderPhotos($photoset_id, $photo_ids)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.reorderPhotos.html */
-        return $this->call('flickr.photosets.reorderPhotos', array('photoset_id' => $photoset_id, 'photo_ids' => $photo_ids));
+        return $this->photosets()->reorderPhotos($photoset_id, $photo_ids);
     }
 
+    /**
+     * @deprecated
+     */
     public function photosets_setPrimaryPhoto($photoset_id, $photo_id)
     {
-        /* https://www.flickr.com/services/api/flickr.photosets.setPrimaryPhoto.html */
-        return $this->call('flickr.photosets.setPrimaryPhoto', array('photoset_id' => $photoset_id, 'photo_id' => $photo_id));
+        return $this->photosets()->setPrimaryPhoto($photoset_id, $photo_id);
     }
 
     /* Photosets Comments Methods */
