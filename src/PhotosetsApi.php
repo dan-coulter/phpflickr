@@ -215,9 +215,91 @@ class PhotosetsApi extends ApiMethodGroup
         return isset($response['photoset']) ? $response['photoset'] : false;
     }
 
-    //flickr.photosets.orderSets
-    //flickr.photosets.removePhoto
-    //flickr.photosets.removePhotos
-    //flickr.photosets.reorderPhotos
-    //flickr.photosets.setPrimaryPhoto
+    /**
+     * Set the order of photosets for the calling user.
+     *
+     * @link https://www.flickr.com/services/api/flickr.photosets.orderSets.html
+     * @param $photosetIds string|string[] An array or comma-delimited list of photoset IDs, ordered with the set to
+     * show first, first in the list. Any set IDs not given in the list will be set to appear at the end of the list,
+     * ordered by their IDs.
+     * @return bool
+     */
+    public function orderSets($photosetIds)
+    {
+        if (is_array($photosetIds)) {
+            $photosetIds = implode(",", $photosetIds);
+        }
+        $response = $this->flickr->request("flickr.photosets.orderSets", ["photoset_ids" => $photosetIds], true);
+        return isset($response['stat']) && $response['stat'] === 'ok';
+    }
+
+    /**
+     * Remove a photo from a photoset.
+     *
+     * @link https://www.flickr.com/services/api/flickr.photosets.removePhoto.html
+     * @param $photosetId string The ID of the photoset to remove a photo from.
+     * @param $photoId string The ID of the photo to remove from the set.
+     * @return bool
+     */
+    public function removePhoto($photosetId, $photoId)
+    {
+        $params = ["photoset_id" => $photosetId, "photo_id" => $photoId];
+        $response = $this->flickr->request("flickr.photosets.removePhoto", $params, true);
+        return isset($response['stat']) && $response['stat'] === 'ok';
+    }
+
+    /**
+     * Remove multiple photos from a photoset.
+     *
+     * @link https://www.flickr.com/services/api/flickr.photosets.removePhotos.html
+     * @param $photosetId string The ID of the photoset to remove photos from.
+     * @param $photoIds string|string[] Array or comma-delimited list of photo IDs to remove from the photoset.
+     * @return bool
+     */
+    public function removePhotos($photosetId, $photoIds)
+    {
+        if (is_array($photoIds)) {
+            $photoIds = implode(",", $photoIds);
+        }
+        $params = ['photoset_id' => $photosetId, 'photo_ids' => $photoIds];
+        $response = $this->flickr->request('flickr.photosets.removePhotos', $params, true);
+        return isset($response['stat']) && $response['stat'] === 'ok';
+    }
+
+    /**
+     * Reorder some or all of the photos in a set.
+     *
+     * @link https://www.flickr.com/services/api/flickr.photosets.reorderPhotos.html
+     * @param $photosetId string The ID of the photoset to reorder. The photoset must belong to the calling user.
+     * @param $photoIds string|string[] Ordered, comma-delimited list or array of photo IDs. Photos that are not in the
+     * list will keep their original order.
+     * @return bool
+     */
+    public function reorderPhotos($photosetId, $photoIds)
+    {
+        if (is_array($photoIds)) {
+            $photoIds = implode(",", $photoIds);
+        }
+        $params = ['photoset_id' => $photosetId, 'photo_ids' => $photoIds];
+        $response = $this->flickr->request('flickr.photosets.reorderPhotos', $params, true);
+        return isset($response['stat']) && $response['stat'] === 'ok';
+    }
+
+    /**
+     * Set the primary photo of a photoset.
+     *
+     * @link https://www.flickr.com/services/api/flickr.photosets.setPrimaryPhoto.html
+     * @param $photosetId string The ID of the photoset to set primary photo to.
+     * @param $photoId string The ID of the photo to set as primary.
+     * @return bool
+     */
+    public function setPrimaryPhoto($photosetId, $photoId)
+    {
+        $response = $this->flickr->request(
+            'flickr.photosets.setPrimaryPhoto',
+            ['photoset_id' => $photosetId, 'photo_id' => $photoId],
+            true
+        );
+        return isset($response['stat']) && $response['stat'] === 'ok';
+    }
 }
