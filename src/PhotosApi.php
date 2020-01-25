@@ -73,14 +73,171 @@ class PhotosApi extends ApiMethodGroup
         ], true);
     }
 
-    //flickr.photos.delete
-    //flickr.photos.getAllContexts
-    //flickr.photos.getContactsPhotos
-    //flickr.photos.getContactsPublicPhotos
-    //flickr.photos.getContext
-    //flickr.photos.getCounts
-    //flickr.photos.getExif
-    //flickr.photos.getFavorites
+    /**
+     * Delete a photo from flickr.
+     *
+     * @link https://www.flickr.com/services/api/flickr.photos.delete.html
+     * @param $photoId string The ID of the photo to delete.
+     * @return bool
+     */
+    public function delete($photoId)
+    {
+        return (bool)$this->flickr->request('flickr.photos.delete', ['photo_id'=>$photoId], true);
+    }
+
+    /**
+     * Returns all visible sets and pools the photo belongs to.
+     *
+     * @link https://www.flickr.com/services/api/flickr.photos.getAllContexts.html
+     * @param $photoId string The photo to return information for.
+     * @return bool
+     */
+    public function getAllContexts($photoId)
+    {
+        return $this->request('flickr.photos.getAllContexts', ['photo_id'=>$photoId]);
+    }
+
+    /**
+     * Fetch a list of recent photos from the calling users' contacts.
+     *
+     * @link https://www.flickr.com/services/api/flickr.photos.getContactsPhotos.html
+     * @param $count int|null Number of photos to return. Defaults to 10, maximum 50. This is only used if single_photo
+     * is not passed.
+     * @param $justFriends bool|null Set as 1 to only show photos from friends and family (excluding regular contacts).
+     * @param $singlePhoto bool|null Only fetch one photo (the latest) per contact, instead of all photos in
+     * chronological order.
+     * @param $includeSelf bool|null Whether to include photos from the calling user.
+     * @param $extras string|string[] An array or comma-delimited list of extra information to fetch for each returned
+     * record. Currently supported fields include: license, date_upload, date_taken, owner_name, icon_server,
+     * original_format, last_update. For more information see extras under flickr.photos.search.
+     * @return mixed
+     */
+    public function getContactsPhotos(
+        $count = null,
+        $justFriends = null,
+        $singlePhoto = null,
+        $includeSelf = null,
+        $extras = null
+    ) {
+        if (is_array($extras)) {
+            $extras = join(',', $extras);
+        }
+        $params = [
+            'count' => $count,
+            'just_friends' => $justFriends,
+            'single_photo' => $singlePhoto,
+            'include_self'=> $includeSelf,
+            'extras' => $extras
+        ];
+        $response = $this->flickr->request('flickr.photos.getContactsPhotos', $params);
+        return isset($response['photos']['photo']) ? $response['photos']['photo'] : false;
+    }
+
+    /**
+     * Fetch a list of recent public photos from a users' contacts.
+     *
+     * @link https://www.flickr.com/services/api/flickr.photos.getContactsPublicPhotos.html
+     * @param $userId string The NSID of the user to fetch photos for.
+     * @param $count int|null Number of photos to return. Defaults to 10, maximum 50. This is only used if $singlePhoto
+     * is false.
+     * @param $justFriends bool|null Whether to only show photos from friends and family (excluding regular contacts).
+     * @param $singlePhoto bool|null Only fetch one photo (the latest) per contact, instead of all photos in
+     * chronological order.
+     * @param $includeSelf bool|null Whether to include photos from the user specified by $userId.
+     * @param $extras string|string[]|null Array or comma-delimited list of extra information to fetch for each returned
+     * record. Currently supported fields are: license, date_upload, date_taken, owner_name, icon_server,
+     * original_format, last_update.
+     * @return mixed
+     */
+    public function getContactsPublicPhotos(
+        $userId,
+        $count = null,
+        $justFriends = null,
+        $singlePhoto = null,
+        $includeSelf = null,
+        $extras = null
+    ) {
+        if (is_array($extras)) {
+            $extras = join(',', $extras);
+        }
+        $params = [
+            'user_id' => $userId,
+            'count' => $count,
+            'just_friends' => $justFriends,
+            'single_photo' => $singlePhoto,
+            'include_self'=> $includeSelf,
+            'extras' => $extras
+        ];
+        $response = $this->flickr->request('flickr.photos.getContactsPublicPhotos', $params);
+        return isset($response['photos']['photo']) ? $response['photos']['photo'] : false;
+    }
+
+    /**
+     * Returns next and previous photos for a photo in a photostream.
+     *
+     * @link https://www.flickr.com/services/api/flickr.photos.getContext.html
+     * @param $photoId string The ID of the photo to fetch the context for.
+     * @return mixed
+     */
+    public function getContext($photoId)
+    {
+        return $this->flickr->request('flickr.photos.getContext', ['photo_id' => $photoId]);
+    }
+
+    /**
+     * Gets a list of photo counts for the given date ranges for the calling user.
+     *
+     * @link https://www.flickr.com/services/api/flickr.photos.getCounts.html
+     * @param $dates string|string[]|null Array or comma-delimited list of unix timestamps, denoting the periods to
+     * return counts for. They should be specified smallest first.
+     * @param $takenDates string|string[]|null Array or comma-delimited list of MySQL datetimes, denoting the periods to
+     * return counts for. They should be specified smallest first.
+     * @return bool
+     */
+    public function getCounts($dates = null, $takenDates = null)
+    {
+        if (is_array($dates)) {
+            $dates = join(',', $dates);
+        }
+        if (is_array($takenDates)) {
+            $takenDates = join(',', $takenDates);
+        }
+        $params = ['dates' => $dates, 'taken_dates' => $takenDates];
+        $response = $this->flickr->request('flickr.photos.getCounts', $params);
+        return isset($response['photocounts']['photocount']) ? $response['photocounts']['photocount'] : false;
+    }
+
+    /**
+     * Retrieve a list of EXIF/TIFF/GPS tags for a given photo. The calling user must have permission to view the photo.
+     *
+     * @link https://www.flickr.com/services/api/flickr.photos.getExif.html
+     * @param $photoId string The ID of the photo to fetch information for.
+     * @param $secret string|null The secret for the photo. If the correct secret is passed then permissions-checking is
+     * skipped. This enables the 'sharing' of individual photos by passing around the ID and secret.
+     * @return mixed
+     */
+    public function getExif($photoId, $secret = null)
+    {
+        $response = $this->flickr->request('flickr.photos.getExif', ['photo_id'=>$photoId, 'secret'=>$secret]);
+        return isset($response['photo']) ? $response['photo'] : false;
+    }
+
+    /**
+     * Returns the list of people who have favorited a given photo.
+     *
+     * @link https://www.flickr.com/services/api/flickr.photos.getFavorites.html
+     * @param $photoId string The ID of the photo to fetch the favoriters list for.
+     * @param $page int|null The page of results to return. If this argument is omitted, it defaults to 1.
+     * @param $perPage int|null Number of users to return per page. If this argument is omitted, it defaults to 10. The
+     * maximum allowed value is 50.
+     * @return mixed
+     */
+    public function getFavorites($photoId, $page = null, $perPage = null)
+    {
+        $params = ['photo_id'=>$photoId, 'page'=>$page, 'per_page'=>$perPage];
+        $response = $this->flickr->request('flickr.photos.getFavorites', $params);
+        return isset($response['photo']) ? $response['photo'] : false;
+    }
 
     /**
      * Get information about a photo. The calling user must have permission to view the photo.
@@ -124,7 +281,7 @@ class PhotosApi extends ApiMethodGroup
         if (!isset($sets['photoset'])) {
             return false;
         }
-        
+
         // for users with more than 500 albums, we must search the photoId page by page (thanks, Flickr...)
         foreach (range(1, $sets['pages']) as $pageNum) {
             if ($pageNum > 1) {

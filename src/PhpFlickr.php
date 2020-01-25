@@ -1071,59 +1071,68 @@ class PhpFlickr
         return $this->photos()->addTags($photoId, $tags);
     }
 
+    /**
+     * @deprecated
+     */
     public function photos_delete($photo_id)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.delete.html */
-        $this->request("flickr.photos.delete", array("photo_id"=>$photo_id), true);
-        return $this->parsed_response ? true : false;
+        return $this->photos()->delete($photo_id);
     }
 
+    /**
+     * @deprecated
+     */
     public function photos_getAllContexts($photo_id)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.getAllContexts.html */
-        $this->request("flickr.photos.getAllContexts", array("photo_id"=>$photo_id));
-        return $this->parsed_response ? $this->parsed_response : false;
+        return $this->photos()->getAllContexts($photo_id);
     }
 
+    /**
+     * @deprecated
+     */
     public function photos_getContactsPhotos($count = null, $just_friends = null, $single_photo = null, $include_self = null, $extras = null)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.getContactsPhotos.html */
-        $this->request("flickr.photos.getContactsPhotos", array("count"=>$count, "just_friends"=>$just_friends, "single_photo"=>$single_photo, "include_self"=>$include_self, "extras"=>$extras));
-        return $this->parsed_response ? $this->parsed_response['photos']['photo'] : false;
+        return $this->photos()->getContactsPhotos($count, $just_friends, $single_photo, $include_self, $extras);
     }
 
+    /**
+     * @deprecated
+     */
     public function photos_getContactsPublicPhotos($user_id, $count = null, $just_friends = null, $single_photo = null, $include_self = null, $extras = null)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.getContactsPublicPhotos.html */
-        $this->request("flickr.photos.getContactsPublicPhotos", array("user_id"=>$user_id, "count"=>$count, "just_friends"=>$just_friends, "single_photo"=>$single_photo, "include_self"=>$include_self, "extras"=>$extras));
-        return $this->parsed_response ? $this->parsed_response['photos']['photo'] : false;
+        return $this->photos()->getContactsPublicPhotos($user_id, $count, $just_friends, $single_photo, $include_self, $extras);
     }
 
+    /**
+     * @deprecated
+     */
     public function photos_getContext($photo_id, $num_prev = null, $num_next = null, $extras = null, $order_by = null)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.getContext.html */
-        return $this->call('flickr.photos.getContext', array('photo_id' => $photo_id, 'num_prev' => $num_prev, 'num_next' => $num_next, 'extras' => $extras, 'order_by' => $order_by));
+        return $this->photos()->getContext($photo_id);
     }
 
+    /**
+     * @deprecated
+     */
     public function photos_getCounts($dates = null, $taken_dates = null)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.getCounts.html */
-        $this->request("flickr.photos.getCounts", array("dates"=>$dates, "taken_dates"=>$taken_dates));
-        return $this->parsed_response ? $this->parsed_response['photocounts']['photocount'] : false;
+        return $this->photos()->getCounts($dates, $taken_dates);
     }
 
+    /**
+     * @deprecated
+     */
     public function photos_getExif($photo_id, $secret = null)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.getExif.html */
-        $this->request("flickr.photos.getExif", array("photo_id"=>$photo_id, "secret"=>$secret));
-        return $this->parsed_response ? $this->parsed_response['photo'] : false;
+        return $this->photos()->getExif($photo_id, $secret);
     }
 
+    /**
+     * @deprecated
+     */
     public function photos_getFavorites($photo_id, $page = null, $per_page = null)
     {
-        /* https://www.flickr.com/services/api/flickr.photos.getFavorites.html */
-        $this->request("flickr.photos.getFavorites", array("photo_id"=>$photo_id, "page"=>$page, "per_page"=>$per_page));
-        return $this->parsed_response ? $this->parsed_response['photo'] : false;
+        return $this->photos()->getFavorites($photo_id, $page, $per_page);
     }
 
     /**
