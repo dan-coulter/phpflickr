@@ -1,3 +1,12 @@
+# Notice
+
+This library was originally written for PHP 4 back in 2005. In the
+intervening years, I have stopped using PHP and stopped using Flickr.
+
+If someone has a burning desire to develop and maintain a replacement
+using a modern version of PHP and set it up for Composer, feel free to
+reach out to me on [Twitter](http://twitter.com/danco).
+
 [phpFlickr](https://github.com/dan-coulter/phpflickr)
 =====================================================
 by [Dan Coulter](http://twitter.com/danco)
