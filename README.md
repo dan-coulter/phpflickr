@@ -2,6 +2,7 @@
 
 This library was originally written for PHP 4 back in 2005. In the
 intervening years, I have stopped using PHP and stopped using Flickr.
+This package has gone unmaintained for much of that time.
 
 If someone has a burning desire to develop and maintain a replacement
 using a modern version of PHP and set it up for Composer, feel free to
