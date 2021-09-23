@@ -1,7 +1,7 @@
 <?php
 /* phpFlickr
  * Written by Dan Coulter (dan@dancoulter.com)
- * Project Home Page: http://github.com/dancoulter/phpflickr
+ * Project Home Page: http://github.com/dan-coulter/phpflickr
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
