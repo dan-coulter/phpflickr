@@ -368,6 +368,11 @@ if ( !class_exists('phpFlickr') ) {
 			//receives an array (can use the individual photo data returned
 			//from an API call) and returns a URL (doesn't mean that the
 			//file size exists)
+			
+			$id = $photo['id'];
+			if (isset($photo['primary'])) // Get Thumb Album
+				$id = $photo['primary'];
+				
 			$sizes = array(
 				"square" => "_s",
 				"square_75" => "_s",
