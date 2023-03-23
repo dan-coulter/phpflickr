@@ -225,7 +225,7 @@ if ( !class_exists('phpFlickr') ) {
 				curl_setopt($curl, CURLOPT_POST, true);
 				curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
 				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-				curl_setopt($curl, CURLOPT_USERAGENT, 'User-Agent: PHP_Flickr/3.11');
+				curl_setopt($curl, CURLOPT_USERAGENT, 'PHP_Flickr/3.11');
 				$response = curl_exec($curl);
 				curl_close($curl);
 			} else {
